@@ -1,0 +1,60 @@
+{
+  "common": {
+    "welcome": "स्वागत आहे",
+    "login": "लॉगिन",
+    "register": "नोंदणी",
+    "logout": "लॉगआउट",
+    "dashboard": "डॅशबोर्ड",
+    "marketplace": "मार्केटप्लेस",
+    "diagnose": "निदान",
+    "profile": "प्रोफाइल",
+    "settings": "सेटिंग्ज"
+  },
+  "auth": {
+    "loginTitle": "कृषी मित्र मध्ये साइन इन करा",
+    "registerTitle": "तुमचे खाते तयार करा",
+    "email": "ईमेल पत्ता",
+    "password": "पासवर्ड",
+    "confirmPassword": "पासवर्ड नक्की करा",
+    "name": "पूर्ण नाव",
+    "role": "मी एक",
+    "roleFarmer": "शेतकरी",
+    "roleBuyer": "खरेदीदार",
+    "haveAccount": "आधीपासून खाते आहे?",
+    "noAccount": "खाते नाही?"
+  },
+  "dashboard": {
+    "welcome": "{{name}}, स्वागत आहे!",
+    "activeListings": "सक्रिय याद्या",
+    "diagnosesThisMonth": "या महिन्यातील निदान",
+    "totalRevenue": "एकूण उत्पन्न",
+    "pendingAlerts": "प्रलंबित सूचना",
+    "quickActions": "द्रुत क्रिया",
+    "recentActivity": "अलीकडील क्रिया"
+  },
+  "marketplace": {
+    "title": "मार्केटप्लेस",
+    "subtitle": "शेतकऱ्यांकडून थेट ताजे पिके खरेदी करा",
+    "searchPlaceholder": "पिके, ठिकाणे शोधा...",
+    "sellProduce": "तुमचे उत्पादन विका",
+    "price": "किंमत",
+    "quantity": "प्रमाण",
+    "location": "स्थान",
+    "organic": "ऑर्गेनिक",
+    "premium": "प्रीमियम",
+    "viewDetails": "तपशील पहा"
+  },
+  "diagnosis": {
+    "title": "पिक रोग निदान",
+    "subtitle": "रोगांचा शोध घेण्यासाठी तुमच्या पिकाच्या पानाची प्रतिमा अपलोड करा",
+    "cropType": "पिकाचा प्रकार",
+    "uploadImage": "प्रतिमा अपलोड करा",
+    "analyze": "प्रतिमेचे विश्लेषण करा",
+    "results": "निदान परिणाम",
+    "confidence": "आत्मविश्वास",
+    "treatment": "शिफारस केलेले उपचार",
+    "prevention": "प्रतिबंध टिप्स",
+    "organicRemedies": "ऑर्गेनिक उपाय",
+    "chemicalTreatments": "रासायनिक उपचार"
+  }
+}

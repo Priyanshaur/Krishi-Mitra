@@ -1,0 +1,60 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "marketplace": "Marketplace",
+    "diagnose": "Diagnose",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "auth": {
+    "loginTitle": "Sign in to Krishi Mitra",
+    "registerTitle": "Create your account",
+    "email": "Email address",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "role": "I am a",
+    "roleFarmer": "Farmer",
+    "roleBuyer": "Buyer",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "activeListings": "Active Listings",
+    "diagnosesThisMonth": "Diagnoses This Month",
+    "totalRevenue": "Total Revenue",
+    "pendingAlerts": "Pending Alerts",
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity"
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Buy fresh produce directly from farmers",
+    "searchPlaceholder": "Search for crops, locations...",
+    "sellProduce": "Sell Your Produce",
+    "price": "Price",
+    "quantity": "Quantity",
+    "location": "Location",
+    "organic": "Organic",
+    "premium": "Premium",
+    "viewDetails": "View Details"
+  },
+  "diagnosis": {
+    "title": "Crop Disease Diagnosis",
+    "subtitle": "Upload an image of your crop leaf to detect diseases",
+    "cropType": "Crop Type",
+    "uploadImage": "Upload Image",
+    "analyze": "Analyze Image",
+    "results": "Diagnosis Results",
+    "confidence": "Confidence",
+    "treatment": "Recommended Treatment",
+    "prevention": "Prevention Tips",
+    "organicRemedies": "Organic Remedies",
+    "chemicalTreatments": "Chemical Treatments"
+  }
+}

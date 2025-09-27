@@ -1,0 +1,60 @@
+{
+  "common": {
+    "welcome": "स्वागत है",
+    "login": "लॉगिन",
+    "register": "रजिस्टर",
+    "logout": "लॉगआउट",
+    "dashboard": "डैशबोर्ड",
+    "marketplace": "मार्केटप्लेस",
+    "diagnose": "निदान",
+    "profile": "प्रोफाइल",
+    "settings": "सेटिंग्स"
+  },
+  "auth": {
+    "loginTitle": "कृषि मित्र में साइन इन करें",
+    "registerTitle": "अपना अकाउंट बनाएं",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "name": "पूरा नाम",
+    "role": "मैं एक हूं",
+    "roleFarmer": "किसान",
+    "roleBuyer": "खरीदार",
+    "haveAccount": "क्या आपके पास पहले से एक अकाउंट है?",
+    "noAccount": "कोई अकाउंट नहीं है?"
+  },
+  "dashboard": {
+    "welcome": "{{name}}, स्वागत है!",
+    "activeListings": "सक्रिय लिस्टिंग",
+    "diagnosesThisMonth": "इस महीने निदान",
+    "totalRevenue": "कुल आय",
+    "pendingAlerts": "लंबित अलर्ट",
+    "quickActions": "त्वरित कार्य",
+    "recentActivity": "हाल की गतिविधि"
+  },
+  "marketplace": {
+    "title": "मार्केटप्लेस",
+    "subtitle": "किसानों से सीधे ताजा उत्पाद खरीदें",
+    "searchPlaceholder": "फसलों, स्थानों की खोज करें...",
+    "sellProduce": "अपना उत्पाद बेचें",
+    "price": "कीमत",
+    "quantity": "मात्रा",
+    "location": "स्थान",
+    "organic": "ऑर्गेनिक",
+    "premium": "प्रीमियम",
+    "viewDetails": "विवरण देखें"
+  },
+  "diagnosis": {
+    "title": "फसल रोग निदान",
+    "subtitle": "रोगों का पता लगाने के लिए अपनी फसल की पत्ती की छवि अपलोड करें",
+    "cropType": "फसल का प्रकार",
+    "uploadImage": "छवि अपलोड करें",
+    "analyze": "छवि का विश्लेषण करें",
+    "results": "निदान परिणाम",
+    "confidence": "विश्वास",
+    "treatment": "सुझाया गया उपचार",
+    "prevention": "रोकथाम के टिप्स",
+    "organicRemedies": "ऑर्गेनिक उपचार",
+    "chemicalTreatments": "रासायनिक उपचार"
+  }
+}
