@@ -1,70 +1,56 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { authAPI } from '../../services/api'
 
-// Async thunks
-export const login = createAsyncThunk(
-  'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.login(email, password)
-      localStorage.setItem('token', response.token)
-      return response
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed')
-    }
-  }
-)
+// Mock async login (replace with real API)
+export const login = createAsyncThunk('auth/login', async (credentials) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        token: 'mock-token',
+        user: {
+          id: '1',
+          name: 'Test User',
+          email: credentials.email,
+          role: 'farmer', // or buyer depending on login
+        },
+      })
+    }, 1000)
+  })
+})
 
-export const register = createAsyncThunk(
-  'auth/register',
-  async (userData, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.register(userData)
-      localStorage.setItem('token', response.token)
-      return response
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed')
-    }
-  }
-)
-
-export const getCurrentUser = createAsyncThunk(
-  'auth/getCurrentUser',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.getMe()
-      return response.user
-    } catch (error) {
-      localStorage.removeItem('token')
-      return rejectWithValue(error.response?.data?.message || 'Authentication failed')
-    }
-  }
-)
+// Load saved auth but DON'T auto-authenticate
+const storedAuth = localStorage.getItem('auth')
+const parsedAuth = storedAuth ? JSON.parse(storedAuth) : null
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null,
-    token: localStorage.getItem('token'),
-    isAuthenticated: false,
+    user: parsedAuth?.user || null,
+    token: parsedAuth?.token || null,
+    isAuthenticated: false,   // ✅ Start as false!
     loading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
-      localStorage.removeItem('token')
+      localStorage.removeItem('auth')
       state.user = null
       state.token = null
       state.isAuthenticated = false
-      state.error = null
     },
     clearError: (state) => {
       state.error = null
     },
+    // Optional: use this if you want to re-auth after validating token
+    rehydrateAuth: (state) => {
+      if (parsedAuth?.user && parsedAuth?.token) {
+        state.user = parsedAuth.user
+        state.token = parsedAuth.token
+        state.isAuthenticated = true
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Login
       .addCase(login.pending, (state) => {
         state.loading = true
         state.error = null
@@ -73,44 +59,21 @@ const authSlice = createSlice({
         state.loading = false
         state.user = action.payload.user
         state.token = action.payload.token
-        state.isAuthenticated = true
+        state.isAuthenticated = true   // ✅ Only set true after login
+        localStorage.setItem(
+          'auth',
+          JSON.stringify({
+            user: action.payload.user,
+            token: action.payload.token,
+          })
+        )
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false
-        state.error = action.payload
-      })
-      // Register
-      .addCase(register.pending, (state) => {
-        state.loading = true
-        state.error = null
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.loading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
-        state.isAuthenticated = true
-      })
-      .addCase(register.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload
-      })
-      // Get Current User
-      .addCase(getCurrentUser.pending, (state) => {
-        state.loading = true
-      })
-      .addCase(getCurrentUser.fulfilled, (state, action) => {
-        state.loading = false
-        state.user = action.payload
-        state.isAuthenticated = true
-      })
-      .addCase(getCurrentUser.rejected, (state) => {
-        state.loading = false
-        state.user = null
-        state.token = null
-        state.isAuthenticated = false
+        state.error = action.error.message
       })
   },
 })
 
-export const { logout, clearError } = authSlice.actions
+export const { logout, clearError, rehydrateAuth } = authSlice.actions
 export default authSlice.reducer

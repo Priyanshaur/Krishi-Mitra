@@ -9,10 +9,4 @@ export const store = configureStore({
     market: marketReducer,
     diagnosis: diagnosisReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: ['persist/PERSIST'],
-      },
-    }),
 })

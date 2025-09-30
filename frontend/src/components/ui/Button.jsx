@@ -1,21 +1,22 @@
 import React from 'react'
+import { clsx } from 'clsx'
 
 const Button = React.forwardRef(({
   children,
   variant = 'primary',
   size = 'medium',
-  className = '',
-  disabled = false,
-  loading = false,
+  className,
+  disabled,
+  loading,
   ...props
 }, ref) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
   
   const variants = {
-    primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500',
-    secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
-    outline: 'border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 focus:ring-gray-500',
-    ghost: 'hover:bg-gray-100 text-gray-700 focus:ring-gray-500'
+    primary: 'bg-green-500 hover:bg-green-600 text-white',
+    secondary: 'bg-blue-500 hover:bg-blue-600 text-white',
+    outline: 'border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900',
+    ghost: 'hover:bg-gray-100 text-gray-700'
   }
   
   const sizes = {
@@ -24,14 +25,16 @@ const Button = React.forwardRef(({
     large: 'px-6 py-3 text-base'
   }
   
-  const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${
-    disabled ? 'opacity-50 cursor-not-allowed' : ''
-  } ${className}`
-  
   return (
     <button
       ref={ref}
-      className={classes}
+      className={clsx(
+        baseClasses,
+        variants[variant],
+        sizes[size],
+        disabled && 'opacity-50 cursor-not-allowed',
+        className
+      )}
       disabled={disabled || loading}
       {...props}
     >

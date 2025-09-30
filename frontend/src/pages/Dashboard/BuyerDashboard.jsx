@@ -8,7 +8,8 @@ import {
   TrendingUp, 
   Star,
   Calendar,
-  MapPin
+  MapPin,
+  MessageSquare 
 } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'

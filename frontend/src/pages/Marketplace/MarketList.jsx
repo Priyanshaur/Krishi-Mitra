@@ -1,41 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, MapPin, Star, Leaf } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Search, Filter, MapPin, Star, Leaf, Plus } from 'lucide-react'
 import { Card, CardContent } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
+import { fetchMarketItems } from '../../store/slices/marketSlice'
 
 const MarketList = () => {
+  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.auth)
+  const { items, loading } = useSelector(state => state.market)
+
   const [filters, setFilters] = useState({
     category: '',
     minPrice: '',
     maxPrice: '',
     location: '',
-    organic: false,
-    qualityGrade: ''
+    organic: false
   })
+
+  useEffect(() => {
+    dispatch(fetchMarketItems())
+  }, [dispatch])
 
   const marketItems = [
     {
       id: 1,
-      title: 'Organic Tomatoes - Grade A',
-      price: 40,
+      title: 'Organic Tomatoes - Premium Quality',
+      price: 45,
       unit: 'kg',
       quantity: 100,
       category: 'vegetables',
       organic: true,
       qualityGrade: 'premium',
       location: 'Pune, Maharashtra',
-      image: '/api/placeholder/300/200',
-      seller: {
-        name: 'Rajesh Kumar',
-        rating: 4.8
-      }
+      image: 'https://images.unsplash.com/photo-1546470427-e212b7d31079?w=300&h=200&fit=crop',
+      seller: { name: 'Rajesh Kumar', rating: 4.8 }
     },
     {
       id: 2,
-      title: 'Basmati Rice - Premium Quality',
+      title: 'Basmati Rice - Grade A',
       price: 85,
       unit: 'kg',
       quantity: 500,
@@ -43,21 +47,9 @@ const MarketList = () => {
       organic: false,
       qualityGrade: 'grade-a',
       location: 'Amritsar, Punjab',
-      image: '/api/placeholder/300/200',
-      seller: {
-        name: 'Simran Singh',
-        rating: 4.9
-      }
+      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=200&fit=crop',
+      seller: { name: 'Simran Singh', rating: 4.9 }
     }
-  ]
-
-  const categories = [
-    { value: '', label: 'All Categories' },
-    { value: 'cereals', label: 'Cereals' },
-    { value: 'pulses', label: 'Pulses' },
-    { value: 'vegetables', label: 'Vegetables' },
-    { value: 'fruits', label: 'Fruits' },
-    { value: 'spices', label: 'Spices' }
   ]
 
   return (
@@ -67,14 +59,17 @@ const MarketList = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Marketplace</h1>
           <p className="text-gray-600 mt-2">
-            Buy fresh produce directly from farmers
+            Buy fresh produce directly from trusted farmers
           </p>
         </div>
-        <Link to="/marketplace/create">
-          <Button variant="primary">
-            Sell Your Produce
-          </Button>
-        </Link>
+        {user?.role === 'farmer' && (
+          <Link to="/marketplace/create">
+            <Button variant="primary">
+              <Plus className="h-4 w-4 mr-2" />
+              Sell Produce
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Search and Filters */}
@@ -84,18 +79,19 @@ const MarketList = () => {
             <div className="lg:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
+                <input
                   type="text"
-                  placeholder="Search for crops, locations..."
-                  className="pl-10"
+                  placeholder="Search for crops, locations, farmers..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
-            <select className="input-field">
+            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
               <option>All Categories</option>
-              {categories.slice(1).map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
+              <option value="vegetables">Vegetables</option>
+              <option value="fruits">Fruits</option>
+              <option value="cereals">Cereals</option>
+              <option value="pulses">Pulses</option>
             </select>
             <Button variant="outline" className="flex items-center justify-center">
               <Filter className="h-4 w-4 mr-2" />
@@ -108,7 +104,7 @@ const MarketList = () => {
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {marketItems.map(item => (
-          <Card key={item.id} className="hover:shadow-md transition-shadow duration-200">
+          <Card key={item.id} className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             <div className="relative">
               <img
                 src={item.image}
@@ -116,7 +112,7 @@ const MarketList = () => {
                 className="w-full h-48 object-cover rounded-t-lg"
               />
               {item.organic && (
-                <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
+                <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
                   <Leaf className="h-3 w-3 mr-1" />
                   Organic
                 </div>
@@ -124,8 +120,8 @@ const MarketList = () => {
             </div>
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-gray-900 line-clamp-2">{item.title}</h3>
-                <span className="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
+                <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1">{item.title}</h3>
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full ml-2">
                   {item.qualityGrade}
                 </span>
               </div>

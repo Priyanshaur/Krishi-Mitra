@@ -1,102 +1,92 @@
-import React, { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/layout/Layout";
-import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
-import FarmerDashboard from "./pages/Dashboard/FarmerDashboard";
-import BuyerDashboard from "./pages/Dashboard/BuyerDashboard";
-import MarketList from "./pages/Marketplace/MarketList";
-import Diagnose from "./pages/Diagnose/Diagnose";
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { useSelector } from 'react-redux'
 
-// Simple placeholder components for missing pages
-const Profile = () => <div className="p-6">Profile Page - Coming Soon</div>;
-const Settings = () => <div className="p-6">Settings Page - Coming Soon</div>;
-const Help = () => <div className="p-6">Help Page - Coming Soon</div>;
+// Pages
+import HomePage from './pages/Homepage'
+import Login from './pages/Auth/Login'
+import Register from './pages/Auth/Register'
+import FarmerDashboard from './pages/Dashboard/FarmerDashboard'
+import BuyerDashboard from './pages/Dashboard/BuyerDashboard'
+import MarketList from './pages/Marketplace/MarketList'
+import Diagnose from './pages/Diagnose/Diagnose'
 
-function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user] = useState(null); // You'll replace this with actual auth state
+// Layout
+import Layout from './components/layout/Layout'
 
-  return (
-    <div className="App">
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        {/* Protected routes with layout */}
-        <Route
-          path="/"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <Navigate to="/dashboard" replace />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/dashboard"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              {user?.role === "farmer" ? (
-                <FarmerDashboard />
-              ) : (
-                <BuyerDashboard />
-              )}
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/marketplace"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <MarketList />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/diagnose"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <Diagnose />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/profile"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <Profile />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/settings"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <Settings />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/help"
-          element={
-            <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-              <Help />
-            </Layout>
-          }
-        />
-
-        {/* 404 route */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </div>
-  );
+//chatbot
+import Chatbot from './components/Chat/Chatbot'
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useSelector(state => state.auth)
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
-export default App;
+function App() {
+  const { user, isAuthenticated } = useSelector(state => state.auth)
+
+  return (
+    <Router>
+      <div className="App">
+        <Toaster position="top-right" />
+        
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+          <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
+          
+          {/* Protected Routes with Layout */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout>
+                {user?.role === 'farmer' ? <FarmerDashboard /> : <BuyerDashboard />}
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace" element={
+            <ProtectedRoute>
+              <Layout>
+                <MarketList />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/diagnose" element={
+            <ProtectedRoute>
+              <Layout>
+                <Diagnose />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/chat" element={
+  <ProtectedRoute>
+    <Layout>
+      <Chatbot />
+    </Layout>
+  </ProtectedRoute>
+} />
+
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
+  )
+}
+
+export default App
