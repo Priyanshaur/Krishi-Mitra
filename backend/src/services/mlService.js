@@ -1,4 +1,5 @@
 import axios from 'axios';
+import FormData from 'form-data';
 
 class MLService {
   constructor() {
@@ -12,13 +13,15 @@ class MLService {
   async predictDisease(imageBuffer, cropType = 'tomato') {
     try {
       const formData = new FormData();
-      const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
-      formData.append('image', blob, 'image.jpg');
+      formData.append('image', imageBuffer, {
+        filename: 'image.jpg',
+        contentType: 'image/jpeg'
+      });
       formData.append('crop_type', cropType);
 
       const response = await this.client.post('/predict', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          ...formData.getHeaders()
         }
       });
 

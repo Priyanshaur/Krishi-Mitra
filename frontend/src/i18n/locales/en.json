@@ -8,7 +8,8 @@
     "marketplace": "Marketplace",
     "diagnose": "Diagnose",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "getStarted": "Get Started"
   },
   "auth": {
     "loginTitle": "Sign in to Krishi Mitra",
@@ -31,6 +32,162 @@
     "pendingAlerts": "Pending Alerts",
     "quickActions": "Quick Actions",
     "recentActivity": "Recent Activity"
+  },
+  "home": {
+    "nav": {
+      "features": "Features",
+      "strategy": "Strategy",
+      "methodology": "Methodology",
+      "future": "Future Scope"
+    },
+    "tagline": "Farmer-first AI, marketplace, and advisory ecosystem for India",
+    "badge": "Empowering Farmers with AI & IoT",
+    "heroHeadlinePrefix": "Smarter Agriculture for a Sustainable",
+    "heroHeadlineHighlight": "Tomorrow",
+    "heroSub": "Krishi Mitra unifies AI diagnostics, compliant trade, and precision advisories to dismantle mandi inefficiencies and boost farmer incomes across India.",
+    "heroBenefits": [
+      {
+        "icon": "sprout",
+        "text": "Built for small & large farms alike"
+      },
+      {
+        "icon": "users",
+        "text": "Farmer-friendly interface"
+      }
+    ],
+    "stats": [
+      { "number": "95%", "label": "Disease Detection Accuracy" },
+      { "number": "10K+", "label": "Farmers Reached" },
+      { "number": "5+", "label": "Languages Supported" },
+      { "number": "∞", "label": "Opportunities to Grow" }
+    ],
+    "featuresTitle": "Core Modules",
+    "featuresSubtitle": "Each feature is designed to solve real challenges faced by Indian farmers.",
+    "features": [
+      {
+        "icon": "image",
+        "title": "Edge-ready AI Diagnostics",
+        "description": "CNNs like EdgePlantNet deliver fast, offline-friendly disease detection tuned for Indian crops."
+      },
+      {
+        "icon": "bluetooth",
+        "title": "Data Flywheel",
+        "description": "Farmer uploads, expert validation, and feedback loops continuously sharpen proprietary models."
+      },
+      {
+        "icon": "barchart",
+        "title": "Trusted B2B Marketplace",
+        "description": "Digital trade rails collapse mandi middle layers with transparent pricing and instant settlement."
+      },
+      {
+        "icon": "cpu",
+        "title": "Precision Advisory",
+        "description": "Hyperlocal weather and soil data power AI recommendations across irrigation, nutrients, and pest risk."
+      },
+      {
+        "icon": "message",
+        "title": "Multilingual Copilot",
+        "description": "Voice and text assistant leverages Bhashini-grade ASR/TTS for inclusive guidance across Indian languages."
+      },
+      {
+        "icon": "satellite",
+        "title": "Borderless Integrations",
+        "description": "APMC reforms, e-NAM APIs, and FPO partnerships unlock interstate trade and compliance readiness."
+      }
+    ],
+  "heroCardTitle": "Krishi Mitra Platform",
+  "heroCardSubtitle": "AI + IoT for Next-Gen Farming",
+    "strategy": {
+      "title": "Farmer-First Strategy",
+      "intro": "Diagnostics, commerce, and farm management flow together on top of a proprietary data engine and inclusive conversational interfaces.",
+      "pillars": [
+        {
+          "title": "AI Crop Diagnostics",
+          "bullets": [
+            {
+              "emphasis": "Edge-ready CNNs",
+              "text": "Lightweight models (EdgePlantNet, MobileNet) deliver offline resilience on rural Android devices."
+            },
+            {
+              "emphasis": "Data backbone",
+              "text": "Start with public datasets, then amplify with farmer uploads, expert validation, and feedback loops."
+            },
+            {
+              "emphasis": "Conversational access",
+              "text": "Voice and text assistant taps Indic ASR/TTS (Bhashini) for dialect-aware support."
+            }
+          ]
+        },
+        {
+          "title": "B2B Marketplace",
+          "bullets": [
+            {
+              "emphasis": "Mandi disruption",
+              "text": "Transparent pricing, instant payments, and quality proofs shrink legacy middle layers."
+            },
+            {
+              "emphasis": "Hybrid model",
+              "text": "Borrow DeHaat’s farmer stickiness while scaling asset-light like Agrim through partner logistics."
+            },
+            {
+              "emphasis": "Compliance-ready",
+              "text": "Built to dovetail with APMC reforms, e-NAM, APLM Act, and FPO collaborations."
+            }
+          ]
+        },
+        {
+          "title": "Smart Farm Suite",
+          "bullets": [
+            {
+              "emphasis": "Precision advisories",
+              "text": "Hyperlocal weather (Bharat Forecast System) and soil cards inform AI-led guidance."
+            },
+            {
+              "emphasis": "Data flywheel",
+              "text": "Diagnostics → advisory → marketplace transactions → certification feed continuous learning."
+            },
+            {
+              "emphasis": "Govt ecosystem",
+              "text": "Integrations with PM-KISAN, Soil Health Cards, and KCC build trust and accelerate onboarding."
+            }
+          ]
+        }
+      ]
+    },
+    "methodology": {
+      "title": "Product Roadmap",
+      "intro": "Our roadmap compounds value with every release.",
+      "phases": [
+        {
+          "label": "Phase I – Foundations",
+          "description": "Bootstrap datasets, benchmark EdgePlantNet/MobileNet, and ship MVP diagnostics."
+        },
+        {
+          "label": "Phase II – Conversational Intelligence",
+          "description": "Launch multilingual copilot and onboard agronomy experts for validation loops."
+        },
+        {
+          "label": "Phase III – Marketplace Launch",
+          "description": "Roll out B2B trading rails with FPO partnerships, digital QC, and compliant payouts."
+        },
+        {
+          "label": "Phase IV – Precision Advisory",
+          "description": "Deploy hyperlocal weather, IoT signals, and AI advisories for automated interventions."
+        },
+        {
+          "label": "Phase V – Certification & Finance",
+          "description": "Offer traceability, certification toolkits, and embedded finance for export readiness."
+        }
+      ]
+    },
+    "future": {
+      "title": "Future Scope",
+      "description": "Upcoming enhancements include drone-based diagnostics, offline voice AI, and scaled government integrations."
+    },
+    "footer": {
+      "copyright": "© 2024 Krishi Mitra. All rights reserved.",
+      "tagline": "Built with ❤️ for Indian Agriculture"
+    }
   },
   "marketplace": {
     "title": "Marketplace",
