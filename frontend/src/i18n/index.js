@@ -7,47 +7,10 @@ import en from './locales/en.json';
 import hi from './locales/hi.json';
 import mr from './locales/mr.json';
 
-// Or create inline translations if files don't exist
 const resources = {
-  en: {
-    translation: {
-      "welcome": "Welcome",
-      "login": "Login",
-      "register": "Register",
-      "dashboard": "Dashboard",
-      "marketplace": "Marketplace",
-      "diagnose": "Diagnose",
-      "profile": "Profile",
-      "settings": "Settings",
-      "logout": "Logout"
-    }
-  },
-  hi: {
-    translation: {
-      "welcome": "स्वागत है",
-      "login": "लॉगिन",
-      "register": "रजिस्टर",
-      "dashboard": "डैशबोर्ड",
-      "marketplace": "मार्केटप्लेस",
-      "diagnose": "निदान",
-      "profile": "प्रोफाइल",
-      "settings": "सेटिंग्स",
-      "logout": "लॉगआउट"
-    }
-  },
-  mr: {
-    translation: {
-      "welcome": "स्वागत आहे",
-      "login": "लॉगिन",
-      "register": "नोंदणी",
-      "dashboard": "डॅशबोर्ड",
-      "marketplace": "मार्केटप्लेस",
-      "diagnose": "निदान",
-      "profile": "प्रोफाइल",
-      "settings": "सेटिंग्ज",
-      "logout": "लॉगआउट"
-    }
-  }
+  en: { translation: en },
+  hi: { translation: hi },
+  mr: { translation: mr }
 };
 
 i18n
