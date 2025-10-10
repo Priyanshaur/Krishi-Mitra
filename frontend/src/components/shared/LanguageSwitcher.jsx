@@ -10,15 +10,19 @@ const LanguageSwitcher = () => {
     { code: 'mr', name: 'मराठी' }
   ]
 
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code)
+  }
+
   return (
     <div className="flex space-x-2">
       {languages.map((lang) => (
         <button
           key={lang.code}
-          onClick={() => i18n.changeLanguage(lang.code)}
+          onClick={() => changeLanguage(lang.code)}
           className={`px-3 py-1 rounded text-sm ${
             i18n.language === lang.code
-              ? 'bg-primary-600 text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >

@@ -10,13 +10,13 @@ const Button = React.forwardRef(({
   loading,
   ...props
 }, ref) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none'
   
   const variants = {
-    primary: 'bg-green-500 hover:bg-green-600 text-white',
-    secondary: 'bg-blue-500 hover:bg-blue-600 text-white',
-    outline: 'border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900',
-    ghost: 'hover:bg-gray-100 text-gray-700'
+    primary: 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md focus:ring-offset-white dark:focus:ring-offset-gray-800',
+    secondary: 'bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md focus:ring-offset-white dark:focus:ring-offset-gray-800',
+    outline: 'border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md focus:ring-offset-white dark:border-gray-600 dark:text-gray-300 dark:hover:text-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800',
+    ghost: 'hover:bg-gray-100 text-gray-700 focus:ring-offset-white dark:hover:bg-gray-700 dark:text-gray-300 dark:focus:ring-offset-gray-800'
   }
   
   const sizes = {

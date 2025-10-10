@@ -189,6 +189,54 @@
       "tagline": "भारतीय कृषि के लिए प्रेम से निर्मित"
     }
   },
+  "settings": {
+    "title": "सेटिंग्स",
+    "profile": {
+      "title": "प्रोफ़ाइल सेटिंग्स",
+      "name": "पूरा नाम",
+      "namePlaceholder": "अपना पूरा नाम दर्ज करें",
+      "email": "ईमेल पता",
+      "emailPlaceholder": "अपना ईमेल पता दर्ज करें",
+      "currentPassword": "वर्तमान पासवर्द",
+      "currentPasswordPlaceholder": "अपना वर्तमान पासवर्ड दर्ज करें",
+      "newPassword": "नया पासवर्ड",
+      "newPasswordPlaceholder": "एक नया पासवर्ड दर्ज करें",
+      "updateButton": "प्रोफ़ाइल अपडेट करें",
+      "updating": "अपडेट हो रहा है..."
+    },
+    "preferences": {
+      "title": "प्राथमिकताएँ",
+      "darkMode": "डार्क मोड",
+      "darkModeDescription": "कम रोशनी में बेहतर दृश्य के लिए डार्क थीम सक्षम करें",
+      "language": "भाषा",
+      "english": "अंग्रेज़ी",
+      "hindi": "हिंदी",
+      "marathi": "मराठी",
+      "updateButton": "प्राथमिकताएँ अपडेट करें",
+      "updating": "अपडेट हो रहा है..."
+    }
+  },
+  "profile": {
+    "title": "मेरी प्रोफ़ाइल",
+    "subtitle": "अपनी खाता सेटिंग्स और प्राथमिकताएँ प्रबंधित करें",
+    "edit": "प्रोफ़ाइल संपादित करें",
+    "cancel": "रद्द करें",
+    "save": "परिवर्तन सहेजें",
+    "overview": "अवलोकन",
+    "details": "प्रोफ़ाइल विवरण",
+    "recentActivity": "हाल की गतिविधि",
+    "name": "पूरा नाम",
+    "email": "ईमेल पता",
+    "phone": "फ़ोन नंबर",
+    "location": "स्थान",
+    "bio": "जीवनी",
+    "stats": {
+      "listings": "सक्रिय लिस्टिंग",
+      "orders": "पूरे किए गए ऑर्डर",
+      "diagnoses": "फ़सल निदान",
+      "revenue": "कुल राजस्व"
+    }
+  },
   "marketplace": {
     "title": "मार्केटप्लेस",
     "subtitle": "किसानों से सीधे ताजा उत्पाद खरीदें",

@@ -1,5 +1,6 @@
 import MarketItem from '../models/MarketItem.js';
 
+// GET REAL MARKET ITEMS FROM DATABASE
 export const getMarketItems = async (req, res) => {
   try {
     const {
@@ -14,7 +15,7 @@ export const getMarketItems = async (req, res) => {
       search
     } = req.query;
 
-    // Build filter object
+    // Build REAL database query
     const filter = { status: 'active' };
     
     if (category) filter.category = category;
@@ -31,9 +32,16 @@ export const getMarketItems = async (req, res) => {
         { 'location.state': new RegExp(location, 'i') }
       ];
     }
+    if (search) {
+      filter.$or = [
+        { title: new RegExp(search, 'i') },
+        { description: new RegExp(search, 'i') }
+      ];
+    }
 
+    // REAL DATABASE QUERY
     const items = await MarketItem.find(filter)
-      .populate('sellerId', 'name profile')
+      .populate('sellerId', 'name profile phone')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -51,13 +59,15 @@ export const getMarketItems = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Get Market Items Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching market items'
+      message: 'Error fetching market items from database'
     });
   }
 };
 
+// GET SINGLE REAL MARKET ITEM
 export const getMarketItem = async (req, res) => {
   try {
     const item = await MarketItem.findById(req.params.id)
@@ -66,7 +76,7 @@ export const getMarketItem = async (req, res) => {
     if (!item) {
       return res.status(404).json({
         success: false,
-        message: 'Market item not found'
+        message: 'Market item not found in database'
       });
     }
 
@@ -75,13 +85,15 @@ export const getMarketItem = async (req, res) => {
       data: item
     });
   } catch (error) {
+    console.error('Get Market Item Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching market item'
+      message: 'Error fetching market item from database'
     });
   }
 };
 
+// CREATE REAL MARKET ITEM IN DATABASE
 export const createMarketItem = async (req, res) => {
   try {
     const marketItem = await MarketItem.create({
@@ -89,18 +101,23 @@ export const createMarketItem = async (req, res) => {
       sellerId: req.user.id
     });
 
+    // Populate seller info
+    await marketItem.populate('sellerId', 'name profile');
+
     res.status(201).json({
       success: true,
       data: marketItem
     });
   } catch (error) {
+    console.error('Create Market Item Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error creating market item'
+      message: 'Error creating market item in database'
     });
   }
 };
 
+// UPDATE MARKET ITEM
 export const updateMarketItem = async (req, res) => {
   try {
     let marketItem = await MarketItem.findById(req.params.id);
@@ -131,6 +148,7 @@ export const updateMarketItem = async (req, res) => {
       data: marketItem
     });
   } catch (error) {
+    console.error('Update Market Item Error:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating market item'
@@ -138,6 +156,7 @@ export const updateMarketItem = async (req, res) => {
   }
 };
 
+// DELETE MARKET ITEM
 export const deleteMarketItem = async (req, res) => {
   try {
     const marketItem = await MarketItem.findById(req.params.id);
@@ -164,6 +183,7 @@ export const deleteMarketItem = async (req, res) => {
       message: 'Market item deleted successfully'
     });
   } catch (error) {
+    console.error('Delete Market Item Error:', error);
     res.status(500).json({
       success: false,
       message: 'Error deleting market item'
@@ -171,6 +191,7 @@ export const deleteMarketItem = async (req, res) => {
   }
 };
 
+// GET USER'S MARKET ITEMS
 export const getUserMarketItems = async (req, res) => {
   try {
     const items = await MarketItem.find({ sellerId: req.user.id })
@@ -181,6 +202,7 @@ export const getUserMarketItems = async (req, res) => {
       data: items
     });
   } catch (error) {
+    console.error('Get User Market Items Error:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching user market items'

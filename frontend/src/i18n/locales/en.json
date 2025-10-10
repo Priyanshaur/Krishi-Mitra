@@ -33,6 +33,33 @@
     "quickActions": "Quick Actions",
     "recentActivity": "Recent Activity"
   },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile Settings",
+      "name": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter a new password",
+      "updateButton": "Update Profile",
+      "updating": "Updating..."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "darkMode": "Dark Mode",
+      "darkModeDescription": "Enable dark theme for better viewing in low light",
+      "language": "Language",
+      "english": "English",
+      "hindi": "Hindi (हिंदी)",
+      "marathi": "Marathi (मराठी)",
+      "updateButton": "Update Preferences",
+      "updating": "Updating..."
+    }
+  },
   "home": {
     "nav": {
       "features": "Features",
@@ -187,6 +214,27 @@
     "footer": {
       "copyright": "© 2024 Krishi Mitra. All rights reserved.",
       "tagline": "Built with ❤️ for Indian Agriculture"
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your account settings and preferences",
+    "edit": "Edit Profile",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "overview": "Overview",
+    "details": "Profile Details",
+    "recentActivity": "Recent Activity",
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "location": "Location",
+    "bio": "Bio",
+    "stats": {
+      "listings": "Active Listings",
+      "orders": "Orders Completed",
+      "diagnoses": "Crop Diagnoses",
+      "revenue": "Total Revenue"
     }
   },
   "marketplace": {

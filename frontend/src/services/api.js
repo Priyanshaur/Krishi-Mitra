@@ -1,6 +1,4 @@
 import axios from 'axios'
-import { store } from '../store/store'
-import { logout } from '../store/slices/authSlice'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -10,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
 })
 
 // Request interceptor to add auth token
@@ -19,21 +18,32 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    console.log('API Request:', config.method?.toUpperCase(), config.url);
     return config
   },
   (error) => {
+    console.error('API Request Error:', error);
     return Promise.reject(error)
   }
 )
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response.status, response.data);
+    return response
+  },
   (error) => {
+    console.error('API Response Error:', error.response?.status, error.response?.data);
+    
+    // Only redirect to login if we were previously authenticated
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      store.dispatch(logout())
-      window.location.href = '/login'
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Dispatch a logout action to update Redux state
+        // The redirect will be handled by the ProtectedRoute component
+        window.dispatchEvent(new CustomEvent('unauthorized'));
+      }
     }
     return Promise.reject(error)
   }
@@ -52,6 +62,9 @@ export const authAPI = {
   
   updateProfile: (profileData) => 
     api.put('/auth/profile', profileData).then(res => res.data),
+  
+  updatePreferences: (preferences) => 
+    api.put('/auth/preferences', preferences).then(res => res.data),
   
   logout: () => 
     api.post('/auth/logout').then(res => res.data),
@@ -82,8 +95,8 @@ export const marketAPI = {
 export const diagnosisAPI = {
   diagnose: (formData) => 
     api.post('/diagnose', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data),
+      headers: { 'Content-Type': 'multipart/form-data' 
+    }}).then(res => res.data),
   
   getHistory: (params = {}) => 
     api.get('/diagnose/history', { params }).then(res => res.data),
@@ -92,10 +105,22 @@ export const diagnosisAPI = {
     api.get(`/diagnose/${id}`).then(res => res.data),
 }
 
-// Chat API
-export const chatAPI = {
-  sendMessage: (message) => 
-    api.post('/chat', { message }).then(res => res.data),
+// Dashboard API
+export const dashboardAPI = {
+  getFarmerStats: () => 
+    api.get('/dashboard/farmer/stats').then(res => res.data),
+  
+  getBuyerStats: () => 
+    api.get('/dashboard/buyer/stats').then(res => res.data),
+  
+  getRecentActivity: () => 
+    api.get('/dashboard/activity').then(res => res.data),
+  
+  getCropHealth: () => 
+    api.get('/dashboard/crop-health').then(res => res.data),
+  
+  getRecommendedFarmers: () => 
+    api.get('/dashboard/recommended-farmers').then(res => res.data),
 }
 
 export default api

@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { logoutUser, fetchUser } from './store/slices/authSlice'
 
 // Pages
 import HomePage from './pages/Homepage'
@@ -11,12 +12,15 @@ import FarmerDashboard from './pages/Dashboard/FarmerDashboard'
 import BuyerDashboard from './pages/Dashboard/BuyerDashboard'
 import MarketList from './pages/Marketplace/MarketList'
 import Diagnose from './pages/Diagnose/Diagnose'
+import Settings from './pages/Settings/Settings'
+import Profile from './pages/Profile/Profile'
 
 // Layout
 import Layout from './components/layout/Layout'
 
 //chatbot
 import Chatbot from './components/Chat/Chatbot'
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSelector(state => state.auth)
@@ -36,7 +40,28 @@ const ProtectedRoute = ({ children }) => {
 }
 
 function App() {
-  const { user, isAuthenticated } = useSelector(state => state.auth)
+  const dispatch = useDispatch()
+  const { user, isAuthenticated, token } = useSelector(state => state.auth)
+
+  // Validate token on app start
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, token]);
+
+  // Handle unauthorized events
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      dispatch(logoutUser());
+    };
+
+    window.addEventListener('unauthorized', handleUnauthorized);
+    
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized);
+    };
+  }, [dispatch]);
 
   return (
     <Router>
@@ -73,13 +98,30 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
+          
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Layout>
+                <Settings />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Layout>
+                <Profile />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
           <Route path="/chat" element={
-  <ProtectedRoute>
-    <Layout>
-      <Chatbot />
-    </Layout>
-  </ProtectedRoute>
-} />
+            <ProtectedRoute>
+              <Layout>
+                <Chatbot />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />

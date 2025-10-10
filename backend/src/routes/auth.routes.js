@@ -1,34 +1,25 @@
-import express from 'express';
-import { body } from 'express-validator';
-import {
-  register,
-  login,
-  getMe,
-  updateProfile,
-  logout
-} from '../controllers/authController.js';
-import { protect } from '../middleware/auth.js';
+import express from "express";
+import { loginUser, registerUser, updateProfile, updatePreferences } from "../controllers/authController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Validation rules
-const registerValidation = [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Please include a valid email'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').isIn(['farmer', 'buyer', 'admin']).withMessage('Invalid role')
-];
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.get("/me", protect, (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role
+    }
+  });
+});
 
-const loginValidation = [
-  body('email').isEmail().withMessage('Please include a valid email'),
-  body('password').exists().withMessage('Password is required')
-];
-
-// Routes
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
-router.get('/me', protect, getMe);
-router.put('/profile', protect, updateProfile);
-router.post('/logout', protect, logout);
+// Protected routes for updating profile and preferences
+router.put("/profile", protect, updateProfile);
+router.put("/preferences", protect, updatePreferences);
 
 export default router;

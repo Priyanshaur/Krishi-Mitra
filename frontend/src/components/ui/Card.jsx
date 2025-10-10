@@ -10,7 +10,7 @@ const Card = React.forwardRef(({
     <div
       ref={ref}
       className={clsx(
-        'bg-white rounded-lg shadow-sm border border-gray-200',
+        'bg-white rounded-xl shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-md dark:bg-gray-800 dark:border-gray-700',
         className
       )}
       {...props}
@@ -30,7 +30,7 @@ const CardHeader = React.forwardRef(({
   return (
     <div
       ref={ref}
-      className={clsx('px-6 py-4 border-b border-gray-200', className)}
+      className={clsx('px-6 py-4 border-b border-gray-200 dark:border-gray-700', className)}
       {...props}
     >
       {children}
@@ -66,7 +66,7 @@ const CardFooter = React.forwardRef(({
   return (
     <div
       ref={ref}
-      className={clsx('px-6 py-4 border-t border-gray-200', className)}
+      className={clsx('px-6 py-4 border-t border-gray-200 dark:border-gray-700', className)}
       {...props}
     >
       {children}
