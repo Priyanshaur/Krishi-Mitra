@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getMarketItems);
-router.get('/:id', getMarketItem);
+router.get('/items/:id', getMarketItem);
 
 // Protected routes
 router.use(protect);

@@ -13,6 +13,9 @@ import {
   LogOut,
   Settings as SettingsIcon,
   Home,
+  Plus,
+  List,
+  Truck,
 } from "lucide-react";
 import "./Sidebar.css";
 
@@ -27,8 +30,10 @@ const Sidebar = ({ open, setOpen }) => {
     { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
     { name: "Home Page", href: "/", icon: Home },
     { name: "Marketplace", href: "/marketplace", icon: ShoppingCart },
+    { name: "Sell Produce", href: "/marketplace/create", icon: Plus },
+    { name: "My Listings", href: "/marketplace/my", icon: List },
+    { name: "Orders", href: "/marketplace/orders", icon: Truck },
     { name: "Crop Diagnosis", href: "/diagnose", icon: Leaf },
-    { name: "My Listings", href: "/marketplace/my", icon: Package },
     { name: "Settings", href: "/settings", icon: SettingsIcon },
   ];
 

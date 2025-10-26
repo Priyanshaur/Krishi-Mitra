@@ -11,6 +11,11 @@ import Register from './pages/Auth/Register'
 import FarmerDashboard from './pages/Dashboard/FarmerDashboard'
 import BuyerDashboard from './pages/Dashboard/BuyerDashboard'
 import MarketList from './pages/Marketplace/MarketList'
+import MarketItem from './pages/Marketplace/MarketItem'
+import CreateListing from './pages/Marketplace/CreateListing'
+import MyListings from './pages/Marketplace/MyListings'
+import Orders from './pages/Marketplace/Orders'
+import OrderDetails from './pages/Marketplace/OrderDetails'
 import Diagnose from './pages/Diagnose/Diagnose'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
@@ -87,6 +92,46 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <MarketList />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace/:id" element={
+            <ProtectedRoute>
+              <Layout>
+                <MarketItem />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace/create" element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateListing />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace/my" element={
+            <ProtectedRoute>
+              <Layout>
+                <MyListings />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace/orders" element={
+            <ProtectedRoute>
+              <Layout>
+                <Orders />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketplace/orders/:id" element={
+            <ProtectedRoute>
+              <Layout>
+                <OrderDetails />
               </Layout>
             </ProtectedRoute>
           } />

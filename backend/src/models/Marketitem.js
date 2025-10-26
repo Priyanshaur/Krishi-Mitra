@@ -1,81 +1,110 @@
-import mongoose from 'mongoose';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
+import User from "./User.js";
 
-const marketItemSchema = new mongoose.Schema({
-  sellerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const MarketItem = sequelize.define(
+  "MarketItem",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    sellerId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [1, 200]
+      }
+    },
+    description: {
+      type: DataTypes.TEXT,
+      validate: {
+        len: [0, 1000]
+      }
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      validate: {
+        min: 0
+      }
+    },
+    unit: {
+      type: DataTypes.ENUM('kg', 'quintal', 'ton', 'bag', 'piece'),
+      allowNull: false,
+      defaultValue: 'kg'
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 0
+      }
+    },
+    category: {
+      type: DataTypes.ENUM('cereals', 'pulses', 'vegetables', 'fruits', 'spices', 'others'),
+      allowNull: false
+    },
+    qualityGrade: {
+      type: DataTypes.ENUM('premium', 'grade-a', 'grade-b', 'standard'),
+      defaultValue: 'standard'
+    },
+    organic: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    harvestDate: {
+      type: DataTypes.DATE
+    },
+    status: {
+      type: DataTypes.ENUM('active', 'sold', 'inactive'),
+      defaultValue: 'active'
+    },
+    "location.city": {
+      type: DataTypes.STRING
+    },
+    "location.state": {
+      type: DataTypes.STRING
+    },
+    "location.pincode": {
+      type: DataTypes.STRING
+    },
+    tags: {
+      type: DataTypes.JSON
+    },
+    images: {
+      type: DataTypes.JSON
+    }
   },
-  title: {
-    type: String,
-    required: [true, 'Title is required'],
-    trim: true,
-    maxlength: 200
-  },
-  description: {
-    type: String,
-    maxlength: 1000
-  },
-  price: {
-    type: Number,
-    required: [true, 'Price is required'],
-    min: 0
-  },
-  unit: {
-    type: String,
-    required: [true, 'Unit is required'],
-    enum: ['kg', 'quintal', 'ton', 'bag', 'piece'],
-    default: 'kg'
-  },
-  quantity: {
-    type: Number,
-    required: [true, 'Quantity is required'],
-    min: 0
-  },
-  category: {
-    type: String,
-    required: true,
-    enum: ['cereals', 'pulses', 'vegetables', 'fruits', 'spices', 'others']
-  },
-  images: [{
-    url: String,
-    publicId: String
-  }],
-  qualityGrade: {
-    type: String,
-    enum: ['premium', 'grade-a', 'grade-b', 'standard'],
-    default: 'standard'
-  },
-  organic: {
-    type: Boolean,
-    default: false
-  },
-  harvestDate: {
-    type: Date
-  },
-  status: {
-    type: String,
-    enum: ['active', 'sold', 'inactive'],
-    default: 'active'
-  },
-  location: {
-    city: String,
-    state: String,
-    pincode: String
-  },
-  tags: [String],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  {
+    tableName: "market_items",
+    timestamps: true,
+    indexes: [
+      {
+        fields: ['sellerId', 'status']
+      },
+      {
+        fields: ['category', 'status']
+      }
+    ]
   }
-});
+);
 
-marketItemSchema.index({ sellerId: 1, status: 1 });
-marketItemSchema.index({ category: 1, status: 1 });
-marketItemSchema.index({ location: 'text', title: 'text', description: 'text' });
+// Associations
+MarketItem.associate = (models) => {
+  MarketItem.belongsTo(User, {
+    foreignKey: 'sellerId',
+    as: 'seller'
+  });
+};
 
-export default mongoose.model('MarketItem', marketItemSchema);
+export default MarketItem;

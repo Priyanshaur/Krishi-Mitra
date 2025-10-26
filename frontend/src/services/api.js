@@ -75,12 +75,26 @@ export const marketAPI = {
   getItems: (params = {}) => 
     api.get('/market/items', { params }).then(res => res.data),
   
-  getItem: (id) => 
-    api.get(`/market/items/${id}`).then(res => res.data),
+  getItem: (id) => {
+    console.log('API Service: Getting item with ID:', id);
+    return api.get(`/market/items/${id}`).then(res => {
+      console.log('API Service: Item response:', res.data);
+      return res.data;
+    });
+  },
   
-  createItem: (itemData) => 
-    api.post('/market/items', itemData).then(res => res.data),
-  
+  createItem: (itemData) => {
+    console.log('API: Creating item with data:', itemData);
+    return api.post('/market/items', itemData).then(res => {
+      console.log('API: Item created successfully:', res.data);
+      return res.data;
+    }).catch(error => {
+      console.error('API: Error creating item:', error);
+      console.error('API: Error response:', error.response);
+      throw error;
+    });
+  },
+
   updateItem: (id, itemData) => 
     api.put(`/market/items/${id}`, itemData).then(res => res.data),
   
@@ -89,6 +103,18 @@ export const marketAPI = {
   
   getUserItems: () => 
     api.get('/market/items/my').then(res => res.data),
+}
+
+// Farmer Orders API
+export const farmerOrdersAPI = {
+  getOrders: () => 
+    api.get('/farmer/orders').then(res => res.data),
+  
+  getOrder: (id) => 
+    api.get(`/farmer/orders/${id}`).then(res => res.data),
+  
+  updateOrderStatus: (id, status) => 
+    api.put(`/farmer/orders/${id}/status`, { status }).then(res => res.data),
 }
 
 // Diagnosis API

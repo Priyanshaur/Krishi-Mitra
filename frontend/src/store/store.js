@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
 import marketReducer from './slices/marketSlice'
 import diagnosisReducer from './slices/diagnosisSlice'
+import farmerOrderReducer from './slices/farmerOrderSlice'
 
 // Custom middleware to log actions
 const loggerMiddleware = (store) => (next) => (action) => {
@@ -16,6 +17,7 @@ export const store = configureStore({
     auth: authReducer,
     market: marketReducer,
     diagnosis: diagnosisReducer,
+    farmerOrders: farmerOrderReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

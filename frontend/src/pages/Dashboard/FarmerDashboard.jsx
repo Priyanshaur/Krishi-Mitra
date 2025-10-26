@@ -97,7 +97,7 @@ const FarmerDashboard = () => {
       title: 'Sell Produce',
       description: 'List your crops in marketplace',
       icon: ShoppingCart,
-      link: '/marketplace',
+      link: '/marketplace/create',
       color: 'secondary',
     },
     {
@@ -106,6 +106,13 @@ const FarmerDashboard = () => {
       icon: Package,
       link: '/marketplace/my',
       color: 'primary',
+    },
+    {
+      title: 'Manage Orders',
+      description: 'View and manage customer orders',
+      icon: ShoppingCart,
+      link: '/marketplace/orders',
+      color: 'secondary',
     },
   ]
 
@@ -202,7 +209,7 @@ const FarmerDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickActions.map((action) => (
           <Card key={action.title} className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             <CardContent className="p-6">

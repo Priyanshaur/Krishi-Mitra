@@ -12,14 +12,23 @@ import authRoutes from './routes/auth.routes.js';
 import marketRoutes from './routes/market.routes.js';
 import diagnoseRoutes from './routes/diagnose.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import farmerOrderRoutes from './routes/farmerOrder.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+
+// Models
+import User from './models/User.js';
+import MarketItem from './models/MarketItem.js';
 
 dotenv.config();
 
 // ✅ Connect Redis
 connectRedis();
+
+// Set up associations
+User.associate({ MarketItem });
+MarketItem.associate({ User });
 
 const app = express();
 app.use(express.json());
@@ -47,6 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/market', marketRoutes);
 app.use('/api/diagnose', diagnoseRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/farmer', farmerOrderRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/dashboard', dashboardRoutes);

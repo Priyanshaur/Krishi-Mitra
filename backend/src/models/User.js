@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import bcrypt from "bcryptjs";
-import sequelize from "../config/db.js"; // ✅ using default export
+import sequelize from "../config/db.js";
 
 const User = sequelize.define(
   "User",
@@ -28,6 +28,16 @@ const User = sequelize.define(
       type: DataTypes.ENUM("farmer", "buyer", "admin"),
       defaultValue: "farmer",
     },
+    profile: {
+      type: DataTypes.STRING,
+    },
+    phone: {
+      type: DataTypes.STRING,
+    },
+    rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 5.0,
+    }
   },
   {
     tableName: "users",
@@ -53,6 +63,14 @@ const User = sequelize.define(
 // Instance method to check password
 User.prototype.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Associations
+User.associate = (models) => {
+  User.hasMany(models.MarketItem, {
+    foreignKey: 'sellerId',
+    as: 'marketItems'
+  });
 };
 
 export default User;
