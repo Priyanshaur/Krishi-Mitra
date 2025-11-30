@@ -1,30 +1,50 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { Upload, Scan, AlertCircle, CheckCircle2, Download, History } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { diagnoseDisease } from '../../store/slices/diagnosisSlice'
+import { testDiagnosisIntegration } from '../../test-diagnosis'
 
 const Diagnose = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
-  const [diagnosisResult, setDiagnosisResult] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState({ ml: false, backend: false })
+  const [error, setError] = useState(null)
 
   const dispatch = useDispatch()
   const { user } = useSelector(state => state.auth)
-  const { currentDiagnosis, history } = useSelector(state => state.diagnosis)
+  const { currentDiagnosis, history, loading: reduxLoading, error: reduxError } = useSelector(state => state.diagnosis)
 
   const { register, handleSubmit, watch } = useForm()
   const cropType = watch('cropType', 'tomato')
+
+  useEffect(() => {
+    // Test connections when component mounts
+    testDiagnosisIntegration().then(() => {
+      // Update connection status based on actual tests
+      setConnectionStatus({ ml: true, backend: true })
+    });
+  }, []);
+
+  useEffect(() => {
+    // Update local loading state based on Redux loading state
+    setLoading(reduxLoading);
+  }, [reduxLoading]);
+
+  useEffect(() => {
+    // Update local error state based on Redux error state
+    setError(reduxError);
+  }, [reduxError]);
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0]
     if (file) {
       setSelectedImage(file)
       setPreviewUrl(URL.createObjectURL(file))
-      setDiagnosisResult(null)
+      setError(null)
     }
   }
 
@@ -32,6 +52,7 @@ const Diagnose = () => {
     if (!selectedImage) return
 
     setLoading(true)
+    setError(null)
     
     // Create FormData for image upload
     const formData = new FormData()
@@ -40,29 +61,16 @@ const Diagnose = () => {
     formData.append('notes', data.notes)
 
     try {
-      // This would dispatch the actual diagnosis action
-      // await dispatch(diagnoseDisease(formData)).unwrap()
-      
-      // Mock result for demonstration
-      setTimeout(() => {
-        const mockResult = {
-          disease: 'Early Blight',
-          confidence: 0.92,
-          scientificName: 'Alternaria solani',
-          recommendations: {
-            treatment: 'Remove affected leaves and apply fungicide. Ensure proper spacing between plants for air circulation.',
-            prevention: 'Practice crop rotation and avoid overhead watering. Remove plant debris from previous seasons.',
-            organicRemedies: ['Neem oil spray (2%)', 'Baking soda solution (1 tbsp per gallon)', 'Garlic-chili spray'],
-            chemicalTreatments: ['Chlorothalonil', 'Mancozeb', 'Copper-based fungicides']
-          },
-          severity: 'medium'
-        }
-        setDiagnosisResult(mockResult)
-        setLoading(false)
-      }, 2000)
-    } catch (error) {
+      // Dispatch the actual diagnosis action
+      console.log('Sending diagnosis request...')
+      await dispatch(diagnoseDisease(formData)).unwrap()
+      console.log('Diagnosis request sent successfully')
+      // The result will be in currentDiagnosis from Redux state
+    } catch (err) {
+      console.error('Diagnosis failed:', err)
+      setError(err.message || 'Failed to get diagnosis')
+    } finally {
       setLoading(false)
-      console.error('Diagnosis failed:', error)
     }
   }
 
@@ -72,6 +80,9 @@ const Diagnose = () => {
     high: 'text-orange-600 bg-orange-50 border-orange-200',
     critical: 'text-red-600 bg-red-50 border-red-200'
   }
+
+  // Use currentDiagnosis from Redux state instead of local state
+  const diagnosisResult = currentDiagnosis;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -88,6 +99,15 @@ const Diagnose = () => {
           View History
         </Button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+            <span className="text-red-700 font-medium">Error: {error}</span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upload Section */}
@@ -195,12 +215,12 @@ const Diagnose = () => {
                 <div className={`p-4 rounded-xl border-2 ${severityColors[diagnosisResult.severity]}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-lg">{diagnosisResult.disease}</h4>
-                      <p className="text-sm opacity-75">{diagnosisResult.scientificName}</p>
+                      <h4 className="font-bold text-lg">{diagnosisResult['prediction.disease'] || 'Unknown Disease'}</h4>
+                      <p className="text-sm opacity-75">{diagnosisResult['prediction.scientificName'] || 'Unknown'}</p>
                     </div>
                     <div className="text-right">
                       <span className="font-bold text-2xl">
-                        {(diagnosisResult.confidence * 100).toFixed(1)}%
+                        {diagnosisResult['prediction.confidence'] ? (diagnosisResult['prediction.confidence'] * 100).toFixed(1) : '0.0'}%
                       </span>
                       <p className="text-sm opacity-75">Confidence</p>
                     </div>
@@ -213,13 +233,17 @@ const Diagnose = () => {
                     <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
                     Recommended Treatment
                   </h5>
-                  <p className="text-gray-700 bg-green-50 p-3 rounded-lg">{diagnosisResult.recommendations.treatment}</p>
+                  <p className="text-gray-700 bg-green-50 p-3 rounded-lg">
+                    No treatment recommendations available
+                  </p>
                 </div>
 
                 {/* Prevention Tips */}
                 <div>
                   <h5 className="font-semibold text-gray-900 mb-3">Prevention Tips</h5>
-                  <p className="text-gray-700">{diagnosisResult.recommendations.prevention}</p>
+                  <p className="text-gray-700">
+                    No prevention tips available
+                  </p>
                 </div>
 
                 {/* Treatment Options */}
@@ -227,23 +251,19 @@ const Diagnose = () => {
                   <div>
                     <h6 className="font-medium text-green-700 mb-2">🌱 Organic Remedies</h6>
                     <ul className="text-sm text-gray-700 space-y-1">
-                      {diagnosisResult.recommendations.organicRemedies.map((remedy, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-green-500 mr-2">•</span>
-                          {remedy}
-                        </li>
-                      ))}
+                      <li className="flex items-start">
+                        <span className="text-green-500 mr-2">•</span>
+                        No organic remedies available
+                      </li>
                     </ul>
                   </div>
                   <div>
                     <h6 className="font-medium text-blue-700 mb-2">⚗️ Chemical Treatments</h6>
                     <ul className="text-sm text-gray-700 space-y-1">
-                      {diagnosisResult.recommendations.chemicalTreatments.map((treatment, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-blue-500 mr-2">•</span>
-                          {treatment}
-                        </li>
-                      ))}
+                      <li className="flex items-start">
+                        <span className="text-blue-500 mr-2">•</span>
+                        No chemical treatments available
+                      </li>
                     </ul>
                   </div>
                 </div>

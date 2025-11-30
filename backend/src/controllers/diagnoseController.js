@@ -1,4 +1,6 @@
 import Diagnosis from '../models/Diagnose.js';
+import mlService from '../services/mlService.js';
+import fs from 'fs';
 
 // SAVE REAL DIAGNOSIS TO DATABASE
 export const diagnoseDisease = async (req, res) => {
@@ -10,24 +12,23 @@ export const diagnoseDisease = async (req, res) => {
       });
     }
 
-    // Create diagnosis record in database
+    // Read the uploaded image file
+    const imageBuffer = fs.readFileSync(req.file.path);
+    const cropType = req.body.cropType || 'tomato';
+
+    // Call the ML service to get disease prediction
+    const mlResult = await mlService.predictDisease(imageBuffer, cropType);
+    
+    // Create diagnosis record in database with real ML results
     const diagnosis = await Diagnosis.create({
       userId: req.user.id,
       imageUrl: `/uploads/${req.file.filename}`,
-      cropType: req.body.cropType || 'tomato',
-      prediction: {
-        disease: 'Early Blight',
-        confidence: 0.92,
-        scientificName: 'Alternaria solani',
-        commonName: 'Early Blight'
-      },
-      recommendations: {
-        treatment: 'Remove affected leaves and apply fungicide',
-        prevention: 'Practice crop rotation and proper spacing',
-        organicRemedies: ['Neem oil spray', 'Baking soda solution'],
-        chemicalTreatments: ['Chlorothalonil', 'Mancozeb']
-      },
-      severity: 'medium',
+      cropType: cropType,
+      'prediction.disease': mlResult.disease,
+      'prediction.confidence': mlResult.confidence,
+      'prediction.scientificName': mlResult.scientific_name || 'Unknown',
+      'prediction.commonName': mlResult.common_name || mlResult.disease,
+      severity: mlResult.confidence > 0.8 ? 'high' : mlResult.confidence > 0.6 ? 'medium' : 'low',
       status: 'processed',
       notes: req.body.notes
     });
@@ -40,7 +41,7 @@ export const diagnoseDisease = async (req, res) => {
     console.error('Diagnosis Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error processing diagnosis'
+      message: 'Error processing diagnosis: ' + error.message
     });
   }
 };
@@ -50,12 +51,13 @@ export const getDiagnosisHistory = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
-    const diagnoses = await Diagnosis.find({ userId: req.user.id })
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Diagnosis.countDocuments({ userId: req.user.id });
+    const offset = (page - 1) * limit;
+    const { count, rows: diagnoses } = await Diagnosis.findAndCountAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
 
     res.status(200).json({
       success: true,
@@ -63,8 +65,8 @@ export const getDiagnosisHistory = async (req, res) => {
       pagination: {
         page: Number(page),
         limit: Number(limit),
-        total,
-        pages: Math.ceil(total / limit)
+        total: count,
+        pages: Math.ceil(count / limit)
       }
     });
   } catch (error) {
@@ -79,7 +81,7 @@ export const getDiagnosisHistory = async (req, res) => {
 // GET SINGLE DIAGNOSIS
 export const getDiagnosis = async (req, res) => {
   try {
-    const diagnosis = await Diagnosis.findById(req.params.id);
+    const diagnosis = await Diagnosis.findByPk(req.params.id);
 
     if (!diagnosis) {
       return res.status(404).json({
@@ -89,7 +91,7 @@ export const getDiagnosis = async (req, res) => {
     }
 
     // Check ownership
-    if (diagnosis.userId.toString() !== req.user.id) {
+    if (diagnosis.userId !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this diagnosis'
