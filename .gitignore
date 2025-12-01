@@ -4,6 +4,11 @@
 **/.venv
 **/env
 **/*.pyc
-
-dwadadw
-
+dist/
+build/
+.env
+.DS_Store
+coverage/
+.vscode/
+.idea/
+*.log

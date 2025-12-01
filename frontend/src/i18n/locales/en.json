@@ -24,6 +24,17 @@
     "haveAccount": "Already have an account?",
     "noAccount": "Don't have an account?"
   },
+  "sidebar": {
+    "home": "Home Page",
+    "sellProduce": "Sell Produce",
+    "myListings": "My Listings",
+    "orders": "Orders",
+    "myOrders": "My Orders",
+    "aiTitle": "AI Assistant",
+    "aiDescription": "Get instant help with farming queries, market prices, and crop advice",
+    "chatNow": "Chat Now",
+    "welcomeGuest": "Welcome! Please sign in."
+  },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
     "activeListings": "Active Listings",
@@ -83,10 +94,22 @@
       }
     ],
     "stats": [
-      { "number": "95%", "label": "Disease Detection Accuracy" },
-      { "number": "10K+", "label": "Farmers Reached" },
-      { "number": "5+", "label": "Languages Supported" },
-      { "number": "∞", "label": "Opportunities to Grow" }
+      {
+        "number": "95%",
+        "label": "Disease Detection Accuracy"
+      },
+      {
+        "number": "10K+",
+        "label": "Farmers Reached"
+      },
+      {
+        "number": "5+",
+        "label": "Languages Supported"
+      },
+      {
+        "number": "∞",
+        "label": "Opportunities to Grow"
+      }
     ],
     "featuresTitle": "Core Modules",
     "featuresSubtitle": "Each feature is designed to solve real challenges faced by Indian farmers.",
@@ -122,8 +145,8 @@
         "description": "APMC reforms, e-NAM APIs, and FPO partnerships unlock interstate trade and compliance readiness."
       }
     ],
-  "heroCardTitle": "Krishi Mitra Platform",
-  "heroCardSubtitle": "AI + IoT for Next-Gen Farming",
+    "heroCardTitle": "Krishi Mitra Platform",
+    "heroCardSubtitle": "AI + IoT for Next-Gen Farming",
     "strategy": {
       "title": "Farmer-First Strategy",
       "intro": "Diagnostics, commerce, and farm management flow together on top of a proprietary data engine and inclusive conversational interfaces.",

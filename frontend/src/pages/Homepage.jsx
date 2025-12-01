@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from 'react-redux'
-import { logoutUser } from "./../store/slices/authSlice"; // adjust path if needed
+import { logoutUser } from "./../store/slices/authSlice";
 import {
   Leaf,
   BarChart3,
@@ -39,7 +39,7 @@ const HomePage = () => {
   const { t } = useTranslation();
   const [currentFeature, setCurrentFeature] = useState(0);
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.auth);   // ✅ FIX
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const featureItems = t('home.features', { returnObjects: true });
   const features = Array.isArray(featureItems) ? featureItems : [];
@@ -87,96 +87,111 @@ const HomePage = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-  {isAuthenticated ? (
-    <>
-      <Link
-        to="/dashboard"
-        className="text-green-600 hover:text-green-700 font-medium px-4 py-2 rounded-lg hover:bg-green-50 transition-all"
-      >
-        Dashboard
-      </Link>
-      <button
-        onClick={() => dispatch(logoutUser())}
-        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
-      >
-        {t('common.logout')}
-      </button>
-    </>
-  ) : (
-    <>
-      <Link
-        to="/login"
-        className="text-green-600 hover:text-green-700 font-medium px-4 py-2 rounded-lg hover:bg-green-50 transition-all"
-      >
-        {t('common.login')}
-      </Link>
-      <Link
-        to="/register"
-        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
-      >
-        {t('common.getStarted')}
-      </Link>
-    </>
-  )}
-</div>
-
-
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="text-green-600 hover:text-green-700 font-medium px-4 py-2 rounded-lg hover:bg-green-50 transition-all"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => dispatch(logoutUser())}
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    {t('common.logout')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-green-600 hover:text-green-700 font-medium px-4 py-2 rounded-lg hover:bg-green-50 transition-all"
+                  >
+                    {t('common.login')}
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    {t('common.getStarted')}
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </nav>
 
       {/* HERO */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Animated Background Blobs */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+          <div className="absolute top-0 -right-40 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: "2s" }}></div>
+          <div className="absolute -bottom-40 left-20 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: "4s" }}></div>
+        </div>
+
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-4">
+          <div className="space-y-8 fade-in">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100/80 backdrop-blur-sm text-green-700 text-sm font-medium mb-4 border border-green-200 shadow-sm">
               <TrendingUp className="h-4 w-4 mr-2" />
               {t('home.badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              {t('home.heroHeadlinePrefix')} <span className="bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">{t('home.heroHeadlineHighlight')}</span>
+            <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-800 bg-clip-text text-transparent">
+                {t('home.heroHeadlinePrefix')}
+              </span>{" "}
+              <span className="relative inline-block">
+                <span className="relative z-10 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                  {t('home.heroHeadlineHighlight')}
+                </span>
+                <span className="absolute bottom-2 left-0 w-full h-3 bg-green-200/50 -z-0 transform -rotate-1 rounded-full"></span>
+              </span>
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
+            <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
               {t('home.heroSub')}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
-                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center"
+                  className="group bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center"
                 >
                   Go to Dashboard
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               ) : (
                 <>
                   <Link
                     to="/register"
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center"
+                    className="group bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center"
                   >
                     {t('common.getStarted')}
-                    <ChevronRight className="ml-2 h-5 w-5" />
+                    <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
                     to="/login"
-                    className="border-2 border-green-500 text-green-600 px-8 py-4 rounded-xl font-medium hover:bg-green-50 transition-all flex items-center justify-center"
+                    className="group bg-white text-green-700 border-2 border-green-100 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-green-50 hover:border-green-200 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center shadow-sm hover:shadow-lg"
                   >
                     {t('common.login')}
                   </Link>
                 </>
               )}
             </div>
-            
-            <div className="pt-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('home.heroBenefitsTitle')}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+            <div className="pt-8 border-t border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">{t('home.heroBenefitsTitle')}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {heroBenefits.map((benefit, index) => {
                   const BenefitIcon = iconMap[benefit.icon] || Leaf;
                   return (
-                    <div key={index} className="flex items-center text-gray-600">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-sm">{benefit.text}</span>
+                    <div key={index} className="flex items-center text-gray-700 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-gray-100 shadow-sm">
+                      <div className="bg-green-100 p-2 rounded-lg mr-3">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      </div>
+                      <span className="font-medium">{benefit.text}</span>
                     </div>
                   );
                 })}
@@ -184,36 +199,43 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <div className="bg-gradient-to-br from-green-400 to-blue-500 absolute inset-0 opacity-20"></div>
-              <img 
-                src="/images/placeholder.jpg" 
-                alt="Krishi Mitra Dashboard" 
-                className="w-full h-auto object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-              <div className="absolute bottom-6 left-6 right-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+          <div className="relative lg:h-[600px] flex items-center justify-center">
+            <div className="relative w-full max-w-lg aspect-square">
+              {/* Main Image Container with Glass Effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-green-100 to-blue-100 rounded-[3rem] transform rotate-6 scale-95 opacity-60 animate-pulse-slow"></div>
+              <div className="absolute inset-0 bg-gradient-to-bl from-yellow-100 to-green-100 rounded-[3rem] transform -rotate-6 scale-95 opacity-60 animate-pulse-slow" style={{ animationDelay: "1s" }}></div>
+
+              <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white/50 backdrop-blur-xl transform transition-transform hover:scale-[1.02] duration-500">
+                <img
+                  src="/images/placeholder.jpg"
+                  alt="Krishi Mitra App Interface"
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Floating Glass Card */}
+                <div className="absolute bottom-8 left-8 right-8 glass rounded-2xl p-4 transform translate-y-2 hover:translate-y-0 transition-transform duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
                       <Leaf className="h-6 w-6 text-white" />
                     </div>
-                    <div className="ml-4">
+                    <div>
                       <h3 className="font-bold text-gray-900">{t('home.heroCardTitle')}</h3>
                       <p className="text-sm text-gray-600">{t('home.heroCardSubtitle')}</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Floating elements */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl shadow-xl flex items-center justify-center animate-pulse-slow">
-              <Sprout className="h-10 w-10 text-white" />
-            </div>
-            <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-2xl shadow-xl flex items-center justify-center animate-pulse-slow">
-              <Globe className="h-8 w-8 text-white" />
+
+              {/* Floating Elements */}
+              <div className="absolute -top-12 -right-12 glass p-4 rounded-2xl animate-float" style={{ animationDelay: "0s" }}>
+                <Sprout className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="absolute top-1/2 -left-16 glass p-4 rounded-2xl animate-float" style={{ animationDelay: "1.5s" }}>
+                <Globe className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="absolute -bottom-8 -right-8 glass p-4 rounded-2xl animate-float" style={{ animationDelay: "3s" }}>
+                <Zap className="h-8 w-8 text-yellow-500" />
+              </div>
             </div>
           </div>
         </div>
@@ -248,9 +270,8 @@ const HomePage = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${
-                  currentFeature === index ? "border-green-500" : "border-transparent"
-                } group`}
+                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${currentFeature === index ? "border-green-500" : "border-transparent"
+                  } group`}
               >
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300">
                   {(() => {
@@ -326,7 +347,7 @@ const HomePage = () => {
           <div className="relative">
             {/* Timeline line */}
             <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></div>
-            
+
             <ul className="space-y-12 pl-24 relative">
               {phases.map((phase, index) => (
                 <li key={index} className="relative group">
@@ -334,7 +355,7 @@ const HomePage = () => {
                   <div className="absolute -left-24 w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <span className="text-xl font-bold">{index + 1}</span>
                   </div>
-                  
+
                   <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-6 hover:shadow-md transition-all duration-300">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{phase.label}</h3>
                     <p className="text-gray-600">{phase.description}</p>
@@ -351,7 +372,7 @@ const HomePage = () => {
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-6">{futureData?.title}</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">{futureData?.description}</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 hover:bg-white/20 transition-all duration-300">
               <Zap className="h-12 w-12 mx-auto mb-4" />

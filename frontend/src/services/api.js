@@ -8,7 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  timeout: 30000,
 })
 
 // Request interceptor to add auth token
@@ -119,10 +119,20 @@ export const farmerOrdersAPI = {
 
 // Diagnosis API
 export const diagnosisAPI = {
-  diagnose: (formData) => 
-    api.post('/diagnose', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' 
-    }}).then(res => res.data),
+  diagnose: (formData) => {
+    console.log('Diagnosis API: Sending request with formData');
+    return api.post('/diagnose', formData, {
+      headers: { 
+        'Content-Type': 'multipart/form-data'
+      }
+    }).then(res => {
+      console.log('Diagnosis API: Response received', res.data);
+      return res.data;
+    }).catch(error => {
+      console.error('Diagnosis API: Error occurred', error.response?.data || error.message);
+      throw error;
+    });
+  },
   
   getHistory: (params = {}) => 
     api.get('/diagnose/history', { params }).then(res => res.data),

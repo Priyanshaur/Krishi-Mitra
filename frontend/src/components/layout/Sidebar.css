@@ -41,6 +41,7 @@
     transform: none;
     position: static;
   }
+
   .sidebar-backdrop {
     display: none;
   }
@@ -154,6 +155,7 @@
 .chat-button:hover {
   background: #eff6ff;
 }
+
 /* === User Section === */
 .user-section {
   border-top: 1px solid rgba(0, 100, 0, 0.1);
@@ -295,6 +297,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -318,6 +321,7 @@
   background: #f0fdf4;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
 /* Sidebar as a vertical flex container */
 .sidebar-container {
   display: flex;
@@ -337,13 +341,115 @@
 .user-section {
   border-top: 1px solid rgba(0, 100, 0, 0.1);
   padding: 16px;
-  background: rgba(255, 255, 255, 0.85); /* keeps it distinct */
+  background: rgba(255, 255, 255, 0.85);
+  /* keeps it distinct */
   flex-shrink: 0;
 }
+
 .sidebar-container nav::-webkit-scrollbar {
   width: 6px;
 }
+
 .sidebar-container nav::-webkit-scrollbar-thumb {
   background: rgba(0, 100, 0, 0.2);
   border-radius: 4px;
+}
+
+/* === Dark Mode Support === */
+.dark .sidebar-container {
+  background: rgba(17, 24, 39, 0.95);
+  /* gray-900 */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.dark .sidebar-container header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .sidebar-container header span {
+  color: #4ade80;
+  /* green-400 */
+}
+
+.dark .sidebar-button {
+  color: #e5e7eb;
+  /* gray-200 */
+}
+
+.dark .sidebar-button:hover,
+.dark .sidebar-button.active {
+  background: rgba(74, 222, 128, 0.1);
+  /* green-400 with opacity */
+  color: #4ade80;
+}
+
+.dark .sidebar-icon {
+  color: #4ade80;
+}
+
+/* AI Assistant Dark Mode */
+.dark .ai-assistant {
+  background: rgba(30, 58, 138, 0.2);
+  /* blue-900 with opacity */
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  /* blue-400 with opacity */
+}
+
+.dark .ai-title {
+  color: #93c5fd;
+  /* blue-300 */
+}
+
+.dark .ai-description {
+  color: #bfdbfe;
+  /* blue-200 */
+}
+
+.dark .chat-button {
+  background: rgba(30, 58, 138, 0.4);
+  color: #93c5fd;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.dark .chat-button:hover {
+  background: rgba(30, 58, 138, 0.6);
+}
+
+/* User Section Dark Mode */
+.dark .user-section {
+  background: rgba(17, 24, 39, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .user-name {
+  color: #e5e7eb;
+}
+
+.dark .user-role {
+  color: #4ade80;
+}
+
+.dark .action-button {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
+
+.dark .action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .logout-button {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  /* red-400 */
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.dark .logout-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.dark .sidebar-container nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
 }

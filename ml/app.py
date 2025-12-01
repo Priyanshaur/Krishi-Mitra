@@ -135,45 +135,59 @@ def _build_model(num_classes: int) -> torch.nn.Module:
 
 
 def _load_model() -> None:
-	global model, class_metadata, class_names
+    global model, class_metadata, class_names
 
-	scripted = MODEL_PATH.suffix == ".pt" and os.getenv("FORCE_STATE_DICT", "false").lower() != "true"
+    scripted = MODEL_PATH.suffix == ".pt" and os.getenv("FORCE_STATE_DICT", "false").lower() != "true"
 
-	if scripted:
-		loaded_model = torch.jit.load(str(MODEL_PATH), map_location=DEVICE)
-		loaded_model.eval()
-		loaded_model.to(DEVICE)
-		class_metadata = _load_class_metadata()
-		class_names = [meta.get("label", f"class_{idx}") for idx, meta in enumerate(class_metadata)]
-		model = loaded_model
-		return
+    if scripted:
+        loaded_model = torch.jit.load(str(MODEL_PATH), map_location=DEVICE)
+        loaded_model.eval()
+        loaded_model.to(DEVICE)
+        class_metadata = _load_class_metadata()
+        class_names = [meta.get("label", f"class_{idx}") for idx, meta in enumerate(class_metadata)]
+        model = loaded_model
+        return
 
-	state = torch.load(str(MODEL_PATH), map_location=DEVICE)
-	if isinstance(state, dict) and "state_dict" in state:
-		state = state["state_dict"]
+    state = torch.load(str(MODEL_PATH), map_location=DEVICE)
+    # Handle case where state dict is nested within a checkpoint
+    if isinstance(state, dict):
+        if "state_dict" in state:
+            state = state["state_dict"]
+        elif "model_state_dict" in state:
+            state = state["model_state_dict"]
+        # If we still have checkpoint metadata, try to extract just the model weights
+        elif any(key.startswith("features.") or key.startswith("classifier.") for key in state.keys()):
+            # This looks like the actual model state dict
+            pass
+        else:
+            # Try to find the model state in the checkpoint
+            for key in state:
+                if isinstance(state[key], dict) and (any(k.startswith("features.") for k in state[key].keys()) or any(k.startswith("classifier.") for k in state[key].keys())):
+                    state = state[key]
+                    break
 
-	if not isinstance(state, dict):
-		raise RuntimeError("Unsupported model checkpoint format. Provide a state_dict or TorchScript module.")
+    if not isinstance(state, dict):
+        raise RuntimeError("Unsupported model checkpoint format. Provide a state_dict or TorchScript module.")
 
-	if "classifier.1.weight" in state:
-		num_classes = state["classifier.1.weight"].shape[0]
-	else:
-		num_classes = int(os.getenv("MODEL_NUM_CLASSES", 0))
-		if num_classes <= 0:
-			raise RuntimeError(
-				"Unable to infer number of classes from checkpoint. Set MODEL_NUM_CLASSES or provide a TorchScript model."
-			)
+    if "classifier.1.weight" in state:
+        num_classes = state["classifier.1.weight"].shape[0]
+    else:
+        num_classes = int(os.getenv("MODEL_NUM_CLASSES", 0))
+        if num_classes <= 0:
+            raise RuntimeError(
+                "Unable to infer number of classes from checkpoint. Set MODEL_NUM_CLASSES or provide a TorchScript model."
+            )
 
-	class_metadata = _load_class_metadata(num_classes)
-	if not class_metadata:
-		class_metadata = [_shape_metadata(None, idx) for idx in range(num_classes)]
-	class_names = [meta.get("label", f"class_{idx}") for idx, meta in enumerate(class_metadata)]
+    class_metadata = _load_class_metadata(num_classes)
+    if not class_metadata:
+        class_metadata = [_shape_metadata(None, idx) for idx in range(num_classes)]
+    class_names = [meta.get("label", f"class_{idx}") for idx, meta in enumerate(class_metadata)]
 
-	net = _build_model(num_classes)
-	net.load_state_dict(state)
-	net.to(DEVICE)
-	net.eval()
-	model = net
+    net = _build_model(num_classes)
+    net.load_state_dict(state, strict=False)  # Use strict=False to ignore missing keys
+    net.to(DEVICE)
+    net.eval()
+    model = net
 
 
 def _prepare_image(image_bytes: bytes) -> torch.Tensor:
@@ -234,9 +248,9 @@ def load_model() -> None:
 		_load_model()
 		if isinstance(model, torch.nn.Module):
 			model.to(DEVICE)
-		print(f"✅ Model loaded from {MODEL_PATH} on device {DEVICE}")
+		print(f"Model loaded from {MODEL_PATH} on device {DEVICE}")
 	except Exception as exc:  # pylint: disable=broad-except
-		print(f"❌ Failed to load model: {exc}")
+		print(f"Failed to load model: {exc}")
 		raise
 
 
@@ -261,6 +275,25 @@ def metadata() -> Dict[str, Any]:
 	}
 
 
+
+# Map frontend crop types to class prefixes
+CROP_PREFIX_MAP = {
+    "apple": "Apple___",
+    "blueberry": "Blueberry___",
+    "cherry": "Cherry_(including_sour)___",
+    "corn": "Corn_(maize)___",
+    "grape": "Grape___",
+    "orange": "Orange___",
+    "peach": "Peach___",
+    "pepper": "Pepper,_bell___",
+    "potato": "Potato___",
+    "raspberry": "Raspberry___",
+    "soybean": "Soybean___",
+    "squash": "Squash___",
+    "strawberry": "Strawberry___",
+    "tomato": "Tomato___",
+}
+
 @app.post("/predict")
 async def predict(
 	image: UploadFile = File(...),
@@ -278,9 +311,36 @@ async def predict(
 	input_tensor = _prepare_image(image_bytes)
 
 	with torch.no_grad():
-		outputs = model(input_tensor)  # type: ignore[arg-type]
+		logits = model(input_tensor)  # type: ignore[arg-type]
+        
+		# Apply crop filtering
+		crop_key = crop_type.lower().strip()
+		if crop_key in CROP_PREFIX_MAP:
+			prefix = CROP_PREFIX_MAP[crop_key]
+			# Create a mask: -inf for invalid classes, 0 for valid classes
+			mask = torch.full_like(logits, float('-inf'))
+			
+			valid_indices = [i for i, name in enumerate(class_names) if name.startswith(prefix)]
+			
+			if valid_indices:
+				mask[:, valid_indices] = 0
+				# Add mask to logits (broadcasting works)
+				logits = logits + mask
+			else:
+				print(f"Warning: No classes found for crop '{crop_key}' with prefix '{prefix}'. Skipping filter.")
 
-	prediction = _format_prediction(outputs)
+	# Debug: Print top 5 probabilities
+	probs = torch.softmax(logits, dim=1)
+	top5_probs, top5_indices = torch.topk(probs, k=5)
+	print(f"\n--- Prediction for {crop_type} ---")
+	for i in range(5):
+		idx = top5_indices[0][i].item()
+		score = top5_probs[0][i].item()
+		name = class_names[idx]
+		print(f"{i+1}. {name}: {score*100:.2f}%")
+	print("----------------------------------\n")
+
+	prediction = _format_prediction(logits)
 	prediction.update(
 		{
 			"crop_type": crop_type,

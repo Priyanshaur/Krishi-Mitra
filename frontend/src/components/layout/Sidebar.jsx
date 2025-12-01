@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { logoutUser } from "../../store/slices/authSlice";
 import {
   X,
@@ -23,26 +24,27 @@ const Sidebar = ({ open, setOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const farmerNavigation = [
-    { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
-    { name: "Home Page", href: "/", icon: Home },
-    { name: "Marketplace", href: "/marketplace", icon: ShoppingCart },
-    { name: "Sell Produce", href: "/marketplace/create", icon: Plus },
-    { name: "My Listings", href: "/marketplace/my", icon: List },
-    { name: "Orders", href: "/marketplace/orders", icon: Truck },
-    { name: "Crop Diagnosis", href: "/diagnose", icon: Leaf },
-    { name: "Settings", href: "/settings", icon: SettingsIcon },
+    { name: t('common.dashboard'), href: "/dashboard", icon: BarChart3 },
+    { name: t('sidebar.home'), href: "/", icon: Home },
+    { name: t('common.marketplace'), href: "/marketplace", icon: ShoppingCart },
+    { name: t('sidebar.sellProduce'), href: "/marketplace/create", icon: Plus },
+    { name: t('sidebar.myListings'), href: "/marketplace/my", icon: List },
+    { name: t('sidebar.orders'), href: "/marketplace/orders", icon: Truck },
+    { name: t('common.diagnose'), href: "/diagnose", icon: Leaf },
+    { name: t('common.settings'), href: "/settings", icon: SettingsIcon },
   ];
 
   const buyerNavigation = [
-    { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
-    { name: "Home Page", href: "/", icon: Home },
-    { name: "Marketplace", href: "/marketplace", icon: ShoppingCart },
-    { name: "My Orders", href: "/orders", icon: Package },
-    { name: "Settings", href: "/settings", icon: SettingsIcon },
+    { name: t('common.dashboard'), href: "/dashboard", icon: BarChart3 },
+    { name: t('sidebar.home'), href: "/", icon: Home },
+    { name: t('common.marketplace'), href: "/marketplace", icon: ShoppingCart },
+    { name: t('sidebar.myOrders'), href: "/orders", icon: Package },
+    { name: t('common.settings'), href: "/settings", icon: SettingsIcon },
   ];
 
   const navigation = user?.role === "farmer" ? farmerNavigation : buyerNavigation;
@@ -76,12 +78,12 @@ const Sidebar = ({ open, setOpen }) => {
             <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
               <Leaf className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-green-800">Krishi Mitra</span>
+            <span className="text-xl font-bold text-green-800 dark:text-green-400">Krishi Mitra</span>
           </Link>
 
           {/* Close on mobile */}
           <button onClick={() => setOpen(false)} className="mobile-only">
-            <X className="h-5 w-5 text-green-700" />
+            <X className="h-5 w-5 text-green-700 dark:text-green-400" />
           </button>
         </header>
 
@@ -93,9 +95,8 @@ const Sidebar = ({ open, setOpen }) => {
                   <button
                     key={item.name}
                     onClick={() => handleNavigation(item.href)}
-                    className={`sidebar-button ${
-                      isActive(item.href) ? "active" : ""
-                    }`}
+                    className={`sidebar-button ${isActive(item.href) ? "active" : ""
+                      }`}
                   >
                     <item.icon className="sidebar-icon" />
                     {item.name}
@@ -106,35 +107,35 @@ const Sidebar = ({ open, setOpen }) => {
               <div className="ai-assistant">
                 <div className="ai-header">
                   <Bot className="ai-icon" />
-                  <span className="ai-title">AI Assistant</span>
+                  <span className="ai-title">{t('sidebar.aiTitle')}</span>
                 </div>
                 <p className="ai-description">
-                  Get instant help with farming queries, market prices, and crop advice
+                  {t('sidebar.aiDescription')}
                 </p>
                 <button
                   onClick={() => handleNavigation("/chat")}
                   className="chat-button"
                 >
-                  💬 Chat Now
+                  💬 {t('sidebar.chatNow')}
                 </button>
               </div>
             </>
           ) : (
             <div className="welcome-section">
-              <p className="welcome-text">Welcome! Please sign in.</p>
+              <p className="welcome-text">{t('sidebar.welcomeGuest')}</p>
               <Link
                 to="/login"
                 className="auth-button"
                 onClick={() => setOpen(false)}
               >
-                Sign In
+                {t('common.login')}
               </Link>
               <Link
                 to="/register"
                 className="auth-button register-button"
                 onClick={() => setOpen(false)}
               >
-                Register
+                {t('common.register')}
               </Link>
             </div>
           )}
@@ -148,7 +149,7 @@ const Sidebar = ({ open, setOpen }) => {
               </div>
               <div className="user-details">
                 <p className="user-name">{user?.name}</p>
-                <p className="user-role">{user?.role}</p>
+                <p className="user-role">{user?.role === 'farmer' ? t('auth.roleFarmer') : t('auth.roleBuyer')}</p>
               </div>
             </div>
 
@@ -157,19 +158,19 @@ const Sidebar = ({ open, setOpen }) => {
                 onClick={() => handleNavigation("/profile")}
                 className="action-button"
               >
-                Profile
+                {t('common.profile')}
               </button>
               <button
                 onClick={() => handleNavigation("/settings")}
                 className="action-button"
               >
-                Settings
+                {t('common.settings')}
               </button>
             </div>
 
             <button onClick={handleLogout} className="logout-button">
               <LogOut className="logout-icon" />
-              Sign Out
+              {t('common.logout')}
             </button>
           </div>
         )}

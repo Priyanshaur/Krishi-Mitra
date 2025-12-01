@@ -1,56 +1,54 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const diagnosisSchema = new mongoose.Schema({
+const Diagnosis = sequelize.define('Diagnosis', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   imageUrl: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   cropType: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  prediction: {
-    disease: String,
-    confidence: Number,
-    scientificName: String,
-    commonName: String
+  'prediction.disease': {
+    type: DataTypes.STRING
   },
-  recommendations: [{
-    treatment: String,
-    prevention: String,
-    organicRemedies: [String],
-    chemicalTreatments: [String]
-  }],
+  'prediction.confidence': {
+    type: DataTypes.FLOAT
+  },
+  'prediction.scientificName': {
+    type: DataTypes.STRING
+  },
+  'prediction.commonName': {
+    type: DataTypes.STRING
+  },
   severity: {
-    type: String,
-    enum: ['low', 'medium', 'high', 'critical'],
-    default: 'low'
+    type: DataTypes.STRING, // Changed from ENUM to STRING
+    defaultValue: 'low'
   },
   status: {
-    type: String,
-    enum: ['pending', 'processed', 'error'],
-    default: 'pending'
+    type: DataTypes.STRING, // Changed from ENUM to STRING
+    defaultValue: 'pending'
   },
-  location: {
-    coordinates: {
-      lat: Number,
-      lng: Number
-    },
-    address: String
-  },
-  notes: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
+  notes: {
+    type: DataTypes.TEXT
   }
+}, {
+  tableName: 'diagnoses',
+  timestamps: true
 });
 
-diagnosisSchema.index({ userId: 1, createdAt: -1 });
-diagnosisSchema.index({ 'prediction.disease': 1 });
-
-export default mongoose.model('Diagnosis', diagnosisSchema);
+export default Diagnosis;

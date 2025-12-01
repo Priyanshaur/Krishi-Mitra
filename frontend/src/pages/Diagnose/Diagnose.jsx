@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Upload, Scan, AlertCircle, CheckCircle2, Download, History } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { diagnoseDisease } from '../../store/slices/diagnosisSlice'
+import { diagnoseDisease, fetchDiagnosisHistory } from '../../store/slices/diagnosisSlice'
 import { testDiagnosisIntegration } from '../../test-diagnosis'
 
 const Diagnose = () => {
@@ -19,7 +19,7 @@ const Diagnose = () => {
   const { currentDiagnosis, history, loading: reduxLoading, error: reduxError } = useSelector(state => state.diagnosis)
 
   const { register, handleSubmit, watch } = useForm()
-  const cropType = watch('cropType', 'tomato')
+  const cropType = watch('cropType', '')
 
   useEffect(() => {
     // Test connections when component mounts
@@ -27,7 +27,10 @@ const Diagnose = () => {
       // Update connection status based on actual tests
       setConnectionStatus({ ml: true, backend: true })
     });
-  }, []);
+
+    // Fetch diagnosis history
+    dispatch(fetchDiagnosisHistory({ page: 1, limit: 3 }));
+  }, [dispatch]);
 
   useEffect(() => {
     // Update local loading state based on Redux loading state
@@ -49,11 +52,11 @@ const Diagnose = () => {
   }
 
   const onSubmit = async (data) => {
-    if (!selectedImage) return
+    if (!selectedImage || !data.cropType) return
 
     setLoading(true)
     setError(null)
-    
+
     // Create FormData for image upload
     const formData = new FormData()
     formData.append('image', selectedImage)
@@ -120,9 +123,11 @@ const Diagnose = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Crop Type</label>
                 <select
-                  {...register('cropType')}
+                  {...register('cropType', { required: true })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  defaultValue=""
                 >
+                  <option value="" disabled>Select a crop...</option>
                   <option value="tomato">Tomato</option>
                   <option value="potato">Potato</option>
                   <option value="corn">Corn</option>
@@ -185,7 +190,7 @@ const Diagnose = () => {
                 variant="primary"
                 size="large"
                 loading={loading}
-                disabled={!selectedImage}
+                disabled={!selectedImage || !cropType}
                 className="w-full"
               >
                 <Scan className="h-4 w-4 mr-2" />
@@ -296,18 +301,26 @@ const Diagnose = () => {
           <h3 className="text-lg font-medium text-gray-900">Recent Diagnoses</h3>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Tomato</span>
-                  <span className="text-xs text-gray-500">2 days ago</span>
+          {history && history.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {history.map((item) => (
+                <div key={item.id} className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded capitalize">{item.cropType}</span>
+                    <span className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p className="font-medium">{item['prediction.disease'] || 'Unknown'}</p>
+                  <p className="text-sm text-gray-600">
+                    {item['prediction.confidence'] ? (item['prediction.confidence'] * 100).toFixed(1) : '0'}% confidence
+                  </p>
                 </div>
-                <p className="font-medium">Early Blight</p>
-                <p className="text-sm text-gray-600">92% confidence</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No recent diagnoses found.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

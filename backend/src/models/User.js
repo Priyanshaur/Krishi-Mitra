@@ -25,7 +25,7 @@ const User = sequelize.define(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("farmer", "buyer", "admin"),
+      type: DataTypes.STRING, // Changed from ENUM to STRING to reduce complexity
       defaultValue: "farmer",
     },
     profile: {
@@ -42,35 +42,25 @@ const User = sequelize.define(
   {
     tableName: "users",
     timestamps: true,
-
-    hooks: {
-      // Hash password before saving to DB
-      beforeCreate: async (user) => {
-        const salt = await bcrypt.genSalt(12);
-        user.password = await bcrypt.hash(user.password, salt);
-      },
-      // Hash password before updating (only if changed)
-      beforeUpdate: async (user) => {
-        if (user.changed("password")) {
-          const salt = await bcrypt.genSalt(12);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-    },
   }
 );
+
+// Add hooks outside of the model definition to avoid additional auto-generated indexes
+User.addHook('beforeCreate', async (user) => {
+  const salt = await bcrypt.genSalt(12);
+  user.password = await bcrypt.hash(user.password, salt);
+});
+
+User.addHook('beforeUpdate', async (user) => {
+  if (user.changed("password")) {
+    const salt = await bcrypt.genSalt(12);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
 
 // Instance method to check password
 User.prototype.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Associations
-User.associate = (models) => {
-  User.hasMany(models.MarketItem, {
-    foreignKey: 'sellerId',
-    as: 'marketItems'
-  });
 };
 
 export default User;
