@@ -223,12 +223,6 @@ const Diagnose = () => {
                       <h4 className="font-bold text-lg">{diagnosisResult['prediction.disease'] || 'Unknown Disease'}</h4>
                       <p className="text-sm opacity-75">{diagnosisResult['prediction.scientificName'] || 'Unknown'}</p>
                     </div>
-                    <div className="text-right">
-                      <span className="font-bold text-2xl">
-                        {diagnosisResult['prediction.confidence'] ? (diagnosisResult['prediction.confidence'] * 100).toFixed(1) : '0.0'}%
-                      </span>
-                      <p className="text-sm opacity-75">Confidence</p>
-                    </div>
                   </div>
                 </div>
 
@@ -310,9 +304,6 @@ const Diagnose = () => {
                     <span className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
                   <p className="font-medium">{item['prediction.disease'] || 'Unknown'}</p>
-                  <p className="text-sm text-gray-600">
-                    {item['prediction.confidence'] ? (item['prediction.confidence'] * 100).toFixed(1) : '0'}% confidence
-                  </p>
                 </div>
               ))}
             </div>
