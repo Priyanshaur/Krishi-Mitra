@@ -3,46 +3,38 @@ import mlService from '../services/mlService.js';
 import fs from 'fs';
 
 // SAVE REAL DIAGNOSIS TO DATABASE
+// ... imports
+
 export const diagnoseDisease = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload an image'
-      });
-    }
+    if (!req.file) return res.status(400).json({ success: false, message: 'Please upload an image' });
 
-    // Read the uploaded image file
     const imageBuffer = fs.readFileSync(req.file.path);
     const cropType = req.body.cropType || 'tomato';
 
-    // Call the ML service to get disease prediction
+    // Call ML Service
     const mlResult = await mlService.predictDisease(imageBuffer, cropType);
     
-    // Create diagnosis record in database with real ML results
+    // ✅ FIX: Save using underscore field names
     const diagnosis = await Diagnosis.create({
       userId: req.user.id,
       imageUrl: `/uploads/${req.file.filename}`,
       cropType: cropType,
-      'prediction.disease': mlResult.disease,
-      'prediction.confidence': mlResult.confidence,
-      'prediction.scientificName': mlResult.scientific_name || 'Unknown',
-      'prediction.commonName': mlResult.common_name || mlResult.disease,
+      
+      prediction_disease: mlResult.disease,
+      prediction_confidence: mlResult.confidence,
+      prediction_scientificName: mlResult.scientific_name || 'Unknown',
+      prediction_commonName: mlResult.common_name || mlResult.disease,
+      
       severity: mlResult.confidence > 0.8 ? 'high' : mlResult.confidence > 0.6 ? 'medium' : 'low',
       status: 'processed',
       notes: req.body.notes
     });
 
-    res.status(200).json({
-      success: true,
-      data: diagnosis
-    });
+    res.status(200).json({ success: true, data: diagnosis });
   } catch (error) {
     console.error('Diagnosis Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error processing diagnosis: ' + error.message
-    });
+    res.status(500).json({ success: false, message: 'Error processing diagnosis: ' + error.message });
   }
 };
 

@@ -1,63 +1,58 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
+import User from './User.js';
+import OrderItem from './OrderItem.js'; // Ensure you created this file in previous steps
 
-const orderSchema = new mongoose.Schema({
+const Order = sequelize.define('Order', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
   buyerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   sellerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
-  items: [{
-    itemId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'MarketItem',
-      required: true
-    },
-    title: String,
-    price: Number,
-    quantity: Number,
-    unit: String
-  }],
   totalAmount: {
-    type: Number,
-    required: true,
-    min: 0
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
   },
   status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-    default: 'pending'
-  },
-  shippingAddress: {
-    street: String,
-    city: String,
-    state: String,
-    pincode: String,
-    contactNumber: String
+    type: DataTypes.ENUM('pending', 'confirmed', 'shipped', 'delivered', 'cancelled'),
+    defaultValue: 'pending'
   },
   paymentStatus: {
-    type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'paid', 'failed', 'refunded'),
+    defaultValue: 'pending'
   },
-  notes: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  // Flattened Shipping Address
+  shipping_street: DataTypes.STRING,
+  shipping_city: DataTypes.STRING,
+  shipping_state: DataTypes.STRING,
+  shipping_pincode: DataTypes.STRING,
+  shipping_contactNumber: DataTypes.STRING,
+  
+  notes: DataTypes.TEXT
+}, {
+  tableName: 'orders',
+  timestamps: true
 });
 
-orderSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// ✅ Define Associations
+Order.belongsTo(User, { foreignKey: 'buyerId', as: 'buyer' });
+Order.belongsTo(User, { foreignKey: 'sellerId', as: 'seller' });
+Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
 
-export default mongoose.model('Order', orderSchema);
+export default Order;

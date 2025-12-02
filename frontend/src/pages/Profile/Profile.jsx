@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { 
   User, 
@@ -15,20 +15,37 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
+import { updateProfile } from '../../store/slices/authSlice'; // ✅ Use Real Action
 
 const Profile = () => {
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth); // ✅ Get Real User
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Initialize with real user data
   const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
     phone: '',
     location: '',
     bio: ''
   });
 
-  // Mock data for profile statistics
+  // Sync state when user loads
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || ''
+      });
+    }
+  }, [user]);
+
+  // Mock data for profile statistics (Since backend doesn't aggregate this yet)
   const profileStats = [
     { label: t('profile.stats.listings'), value: '12', icon: ShoppingCart },
     { label: t('profile.stats.orders'), value: '8', icon: ShoppingCart },
@@ -52,10 +69,10 @@ const Profile = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, this would dispatch an action to update the profile
-    console.log('Profile updated:', profileData);
+    // ✅ Dispatch REAL update action
+    await dispatch(updateProfile(profileData));
     setIsEditing(false);
   };
 
@@ -76,10 +93,15 @@ const Profile = () => {
             <div className="px-6 pb-6 -mt-16">
               <div className="relative flex justify-center">
                 <div className="relative">
-                  <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                      <User className="h-10 w-10 text-white" />
-                    </div>
+                  <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                    {/* ✅ Show Google Picture or Initials */}
+                    {user?.profile ? (
+                      <img src={user.profile} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-3xl font-bold">{user?.name?.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
                   </div>
                   <button className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors">
                     <Camera className="h-4 w-4 text-gray-600" />
@@ -93,18 +115,19 @@ const Profile = () => {
                 <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{user?.email}</p>
               </div>
 
+              {/* ✅ Dynamic Details */}
               <div className="mt-6 space-y-3">
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <MapPin className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Maharashtra, India</span>
+                  <span className="text-sm">{user?.location || "Location not set"}</span>
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Member since Jan 2024</span>
+                  <span className="text-sm">Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Award className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Verified Farmer</span>
+                  <span className="text-sm">Verified Member</span>
                 </div>
               </div>
 
@@ -173,7 +196,8 @@ const Profile = () => {
                       name="email"
                       value={profileData.email}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      disabled // Email usually shouldn't be editable
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
                     />
                   </div>
                   
@@ -254,7 +278,7 @@ const Profile = () => {
                     <Phone className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.phone')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">+91 98765 43210</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{user?.phone || 'Not set'}</p>
                     </div>
                   </div>
                   
@@ -262,14 +286,14 @@ const Profile = () => {
                     <MapPin className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.location')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">Pune, Maharashtra</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{user?.location || 'Not set'}</p>
                     </div>
                   </div>
                   
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('profile.bio')}</p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      Experienced farmer with 15+ years in sustainable agriculture. Specialized in tomato and onion cultivation.
+                      {user?.bio || 'No bio added yet.'}
                     </p>
                   </div>
                 </div>

@@ -31,6 +31,15 @@ const Settings = () => {
     }));
   }, [i18n.language]);
 
+  // Instant Dark Mode Toggle
+  useEffect(() => {
+    if (preferences.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [preferences.darkMode]);
+
   // Handle profile form changes
   const handleProfileChange = (e) => {
     setProfileData({

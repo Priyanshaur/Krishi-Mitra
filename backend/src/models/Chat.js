@@ -1,27 +1,31 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const chatSchema = new mongoose.Schema({
+const Chat = sequelize.define('Chat', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.UUID,
+    allowNull: false
   },
   message: {
-    type: String,
-    required: true
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   response: {
-    type: String,
-    required: true
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   sessionId: {
-    type: String,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.STRING,
+    allowNull: false
   }
+}, {
+  tableName: 'chats',
+  timestamps: true
 });
 
-export default mongoose.model('Chat', chatSchema);
+export default Chat;

@@ -79,17 +79,22 @@ User.hasMany(Diagnosis, {
   foreignKey: 'userId',
   as: 'diagnoses'
 });
-MarketItem.belongsTo(User, {
-  foreignKey: 'sellerId',
-  as: 'seller'
-});
-Diagnosis.belongsTo(User, {
-  foreignKey: 'userId',
-  as: 'user'
-});
+// MarketItem.belongsTo(User, {
+//   foreignKey: 'sellerId',
+//   as: 'seller'
+// });
+// Diagnosis.belongsTo(User, {
+//   foreignKey: 'userId',
+//   as: 'user'
+// });
 
 // Use force: true to drop and recreate tables (only for development)
 // In production, use alter: true or migrations
-await sequelize.sync({ force: true }); // This will drop and recreate tables
+try {
+  await sequelize.authenticate();
+  console.log("✅ Database connected successfully");
+} catch (error) {
+  console.error("❌ Database connection error:", error);
+}
 
 app.listen(5000, () => console.log("🚀 Server running on port 5000"));

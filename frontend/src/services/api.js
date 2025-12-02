@@ -54,6 +54,9 @@ export const authAPI = {
   login: (email, password) => 
     api.post('/auth/login', { email, password }).then(res => res.data),
   
+  googleLogin: (token) => // ✅ ADD THIS
+    api.post('/auth/google', { token }).then(res => res.data),
+    
   register: (userData) => 
     api.post('/auth/register', userData).then(res => res.data),
   
@@ -157,6 +160,11 @@ export const dashboardAPI = {
   
   getRecommendedFarmers: () => 
     api.get('/dashboard/recommended-farmers').then(res => res.data),
+}
+
+export const chatAPI = {
+  sendMessage: (message) => 
+    api.post('/chat', { message }).then(res => res.data),
 }
 
 export default api
