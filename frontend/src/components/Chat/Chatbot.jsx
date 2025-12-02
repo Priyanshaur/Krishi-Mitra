@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot, User, X, Minimize2, Maximize2, MessageCircle } from 'lucide-react'
+import { Send, Bot, User, X, Minimize2, Maximize2, MessageCircle, RefreshCw } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../ui/Card'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
+import { chatAPI } from '../../services/api' // Import the API
 
-const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false)
+const Chatbot = ({ isPage = false }) => {
+  const [isOpen, setIsOpen] = useState(isPage)
   const [isMinimized, setIsMinimized] = useState(false)
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Namaste! I'm your Krishi Mitra AI assistant. I can help you with crop diseases, market prices, farming tips, and more. How can I assist you today? 🌱",
+      text: "Namaste! I'm your Krishi Mitra AI assistant. How can I help you with your farm today? 🌱",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -25,14 +26,14 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, loading, isOpen])
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return
+  const handleSendMessage = async (text = inputMessage) => {
+    if (!text.trim()) return
 
     const userMessage = {
-      id: messages.length + 1,
-      text: inputMessage,
+      id: Date.now(),
+      text: text,
       sender: 'user',
       timestamp: new Date()
     }
@@ -41,42 +42,27 @@ const Chatbot = () => {
     setInputMessage('')
     setLoading(true)
 
-    // Simulate AI response based on message content
-    setTimeout(() => {
+    try {
+      // ✅ REAL API CALL
+      const data = await chatAPI.sendMessage(text)
+      
       const botResponse = {
-        id: messages.length + 2,
-        text: getBotResponse(inputMessage),
+        id: Date.now() + 1,
+        text: data.response, 
         sender: 'bot',
         timestamp: new Date()
       }
       setMessages(prev => [...prev, botResponse])
+    } catch (error) {
+      const errorResponse = {
+        id: Date.now() + 1,
+        text: "I'm having trouble connecting to the server. Please try again later. ⚠️",
+        sender: 'bot',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorResponse])
+    } finally {
       setLoading(false)
-    }, 1500)
-  }
-
-  const getBotResponse = (message) => {
-    const lowerMessage = message.toLowerCase()
-    
-    if (lowerMessage.includes('disease') || lowerMessage.includes('leaf') || lowerMessage.includes('sick')) {
-      return "For disease diagnosis, please upload a clear image of the affected leaf in the Diagnosis section. I can identify common diseases like Early Blight, Late Blight, Powdery Mildew, and suggest organic and chemical treatments. 🍃"
-    } 
-    else if (lowerMessage.includes('price') || lowerMessage.includes('market') || lowerMessage.includes('sell')) {
-      return "Current market prices vary by region. In Maharashtra, tomatoes are ₹40-60/kg, wheat ₹22-25/kg. Check the Marketplace for real-time prices from local buyers. I can help you find the best selling opportunities! 💰"
-    }
-    else if (lowerMessage.includes('fertilizer') || lowerMessage.includes('nutrient') || lowerMessage.includes('soil')) {
-      return "For fertilizer recommendations, consider soil testing first. Organic options include compost, vermicompost, and green manure. Chemical fertilizers should be used based on soil analysis. Different crops need different NPK ratios. 🌿"
-    }
-    else if (lowerMessage.includes('weather') || lowerMessage.includes('rain') || lowerMessage.includes('monsoon')) {
-      return "I recommend checking real-time weather forecasts for your location. For Maharashtra, the monsoon pattern suggests good rainfall this week. Consider protecting crops if heavy rain is expected. ⛈️"
-    }
-    else if (lowerMessage.includes('tomato') || lowerMessage.includes('wheat') || lowerMessage.includes('crop')) {
-      return "For tomato cultivation: Maintain soil pH 6-7, spacing 45-60cm. Wheat needs well-drained soil, temperature 20-25°C. Both benefit from crop rotation. Need specific crop advice? Just ask! 🌾"
-    }
-    else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste')) {
-      return "Namaste! 🌱 I'm here to help with all your farming needs - from crop management to market insights. What would you like to know today?"
-    }
-    else {
-      return "I can help with farming advice, disease diagnosis, market prices, weather information, and crop management tips. Please ask me about specific crops, farming techniques, or market opportunities. How else can I assist you? 🤔"
     }
   }
 
@@ -94,179 +80,136 @@ const Chatbot = () => {
     "Weather forecast this week"
   ]
 
-  if (!isOpen) {
+  if (!isPage && !isOpen) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white z-50"
+        className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white z-50 flex items-center justify-center"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-8 w-8" />
       </Button>
     )
   }
 
-  if (isMinimized) {
+  if (!isPage && isMinimized) {
     return (
       <div className="fixed bottom-6 right-6 w-80 z-50">
         <Card className="shadow-2xl border-green-200">
-          <CardHeader className="flex flex-row items-center justify-between p-3 border-b">
+          <CardHeader className="flex flex-row items-center justify-between p-3 border-b bg-white rounded-lg">
             <div className="flex items-center space-x-2">
               <Bot className="h-5 w-5 text-green-600" />
               <h3 className="font-semibold text-sm">Krishi Mitra Assistant</h3>
             </div>
             <div className="flex space-x-1">
-              <Button
-                variant="ghost"
-                size="small"
-                onClick={() => setIsMinimized(false)}
-              >
+              <Button variant="ghost" size="small" onClick={() => setIsMinimized(false)}>
                 <Maximize2 className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="small"
-                onClick={() => setIsOpen(false)}
-              >
+              <Button variant="ghost" size="small" onClick={() => setIsOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-3">
-            <p className="text-sm text-gray-600 text-center">Chat minimized - Click to expand</p>
-          </CardContent>
         </Card>
       </div>
     )
   }
 
+  const containerClasses = isPage 
+    ? "w-full h-[calc(100vh-140px)] flex flex-col bg-white rounded-xl shadow-sm border border-gray-200" 
+    : "fixed bottom-6 right-6 w-80 h-[500px] z-50 flex flex-col bg-white rounded-xl shadow-2xl border border-green-100"
+
   return (
-    <div className="fixed bottom-6 right-6 w-80 h-96 z-50">
-      <Card className="h-full flex flex-col shadow-2xl border-green-200">
-        <CardHeader className="flex flex-row items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-green-100">
-          <div className="flex items-center space-x-2">
-            <Bot className="h-5 w-5 text-green-600" />
-            <div>
-              <h3 className="font-semibold text-green-900">Krishi Mitra Assistant</h3>
-              <p className="text-xs text-green-600">AI Farming Expert</p>
-            </div>
+    <div className={containerClasses}>
+      <div className="flex flex-row items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-green-100 rounded-t-xl">
+        <div className="flex items-center space-x-3">
+          <div className="bg-white p-2 rounded-full shadow-sm">
+            <Bot className="h-6 w-6 text-green-600" />
           </div>
-          <div className="flex space-x-1">
-            <Button
-              variant="ghost"
-              size="small"
-              onClick={() => setIsMinimized(true)}
-            >
-              <Minimize2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="small"
-              onClick={() => setIsOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="flex-1 p-4 overflow-y-auto bg-white">
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`flex items-start space-x-2 max-w-[85%] ${
-                    message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                  }`}
-                >
-                  <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.sender === 'user'
-                        ? 'bg-green-500'
-                        : 'bg-blue-500'
-                    }`}
-                  >
-                    {message.sender === 'user' ? (
-                      <User className="h-4 w-4 text-white" />
-                    ) : (
-                      <Bot className="h-4 w-4 text-white" />
-                    )}
-                  </div>
-                  <div
-                    className={`px-3 py-2 rounded-2xl ${
-                      message.sender === 'user'
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    <p className="text-sm">{message.text}</p>
-                    <span className={`text-xs mt-1 block ${
-                      message.sender === 'user' ? 'text-green-200' : 'text-gray-500'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="flex items-start space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="bg-gray-100 px-3 py-2 rounded-2xl">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </CardContent>
-        
-        {/* Quick Questions */}
-        {messages.length <= 2 && (
-          <div className="px-4 pb-2">
-            <div className="grid grid-cols-2 gap-2">
-              {quickQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => setInputMessage(question)}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition-colors text-left"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        <div className="p-4 border-t bg-white">
-          <div className="flex space-x-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about crops, prices, diseases..."
-              className="flex-1 text-sm"
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || loading}
-              variant="primary"
-              size="small"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+          <div>
+            <h3 className="font-bold text-green-900">Krishi Mitra AI</h3>
+            <p className="text-xs text-green-700 flex items-center">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
+              Online
+            </p>
           </div>
         </div>
-      </Card>
+        {!isPage && (
+          <div className="flex space-x-1">
+            <Button variant="ghost" size="small" onClick={() => setIsMinimized(true)} className="hover:bg-green-200/50">
+              <Minimize2 className="h-4 w-4 text-green-800" />
+            </Button>
+            <Button variant="ghost" size="small" onClick={() => setIsOpen(false)} className="hover:bg-red-100">
+              <X className="h-4 w-4 text-red-600" />
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex-1 p-4 overflow-y-auto bg-gray-50/50 scroll-smooth">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`flex items-end space-x-2 max-w-[85%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${message.sender === 'user' ? 'bg-green-600' : 'bg-white border border-green-200'}`}>
+                  {message.sender === 'user' ? <User className="h-4 w-4 text-white" /> : <Bot className="h-4 w-4 text-green-600" />}
+                </div>
+                <div className={`px-4 py-2.5 rounded-2xl shadow-sm text-sm leading-relaxed ${message.sender === 'user' ? 'bg-green-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'}`}>
+                  {message.text}
+                </div>
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="flex items-end space-x-2">
+                <div className="w-8 h-8 rounded-full bg-white border border-green-200 flex items-center justify-center shadow-sm">
+                  <Bot className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+      
+      {messages.length <= 2 && (
+        <div className="px-4 pb-2 bg-gray-50/50">
+          <p className="text-xs text-gray-500 mb-2 font-medium ml-1">Suggested questions:</p>
+          <div className="flex flex-wrap gap-2">
+            {quickQuestions.map((question, index) => (
+              <button key={index} onClick={() => handleSendMessage(question)} className="text-xs bg-white hover:bg-green-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-full transition-colors shadow-sm whitespace-nowrap">
+                {question}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <div className="p-4 bg-white border-t rounded-b-xl">
+        <div className="flex space-x-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            className="flex-1"
+            disabled={loading}
+          />
+          <Button onClick={() => handleSendMessage()} disabled={!inputMessage.trim() || loading} variant="primary" className="bg-green-600 hover:bg-green-700 px-4">
+            {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

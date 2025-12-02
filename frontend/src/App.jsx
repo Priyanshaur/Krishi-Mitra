@@ -163,7 +163,7 @@ function App() {
           <Route path="/chat" element={
             <ProtectedRoute>
               <Layout>
-                <Chatbot />
+                <Chatbot isPage={true} /> {/* ✅ NEW: Tells chatbot to fill the page */}
               </Layout>
             </ProtectedRoute>
           } />

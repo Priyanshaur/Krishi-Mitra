@@ -3,7 +3,14 @@ import FormData from 'form-data';
 
 class MLService {
   constructor() {
-    this.baseURL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+    // ❌ REMOVE THIS LINE:
+    // this.baseURL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+    // ✅ REPLACE WITH THIS (Hardcoded for testing):
+    this.baseURL = 'http://127.0.0.1:8000'; 
+    
+    console.log('🔗 ML Service connecting to:', this.baseURL); // Add this debug log!
+
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 30000

@@ -220,8 +220,8 @@ const Diagnose = () => {
                 <div className={`p-4 rounded-xl border-2 ${severityColors[diagnosisResult.severity]}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-lg">{diagnosisResult['prediction.disease'] || 'Unknown Disease'}</h4>
-                      <p className="text-sm opacity-75">{diagnosisResult['prediction.scientificName'] || 'Unknown'}</p>
+                      <h4 className="font-bold text-lg">{diagnosisResult.prediction_disease || 'Unknown Disease'}</h4>
+                      <p className="text-sm opacity-75">{diagnosisResult.prediction_scientificName || 'Unknown'}</p>
                     </div>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ const Diagnose = () => {
                     <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded capitalize">{item.cropType}</span>
                     <span className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p className="font-medium">{item['prediction.disease'] || 'Unknown'}</p>
+                  <p className="font-medium">{item.prediction_disease || 'Unknown'}</p>
                 </div>
               ))}
             </div>

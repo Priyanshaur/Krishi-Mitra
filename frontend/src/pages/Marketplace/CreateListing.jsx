@@ -128,12 +128,13 @@ const CreateListing = () => {
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
-        location: {
-          city: formData.location.city,
-          state: formData.location.state,
-          pincode: formData.location.pincode
-        }
+        // Flatten the location fields for MySQL
+        location_city: formData.location.city,
+        location_state: formData.location.state,
+        location_pincode: formData.location.pincode
       }
+      // Remove the nested location object to avoid backend errors
+      delete submitData.location;
       
       // Use image previews directly
       if (imagePreviews.length > 0) {

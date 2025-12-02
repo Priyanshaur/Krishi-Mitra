@@ -136,7 +136,7 @@ const MarketItem = () => {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {item.location?.city}, {item.location?.state}
+                    {item.location_city}, {item.location_state}
                   </div>
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -237,7 +237,7 @@ const MarketItem = () => {
                 </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
                   <MapPin className="h-4 w-4 mr-1" />
-                  {item.location?.city}, {item.location?.state}
+                  {item.location_city}, {item.location_state}
                 </div>
               </div>
             </div>
