@@ -7,9 +7,7 @@ import io
 import json
 import uvicorn
 import os
-
-# Initialize FastAPI
-app = FastAPI()
+from contextlib import asynccontextmanager
 
 # Configuration
 MODEL_PATH = "models/best_model.pth"  # Path to your saved model
@@ -28,8 +26,8 @@ transform = transforms.Compose([
 ])
 
 # 2. Load Resources on Startup
-@app.on_event("startup")
-async def load_model():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global model, class_names
     
     # Load Class Names
@@ -65,6 +63,14 @@ async def load_model():
             print(f"❌ Error loading model: {e}")
     else:
         print(f"❌ Model file not found at {MODEL_PATH}")
+    
+    yield
+    
+    # Clean up resources if needed
+    print("Shutting down ML server...")
+
+# Initialize FastAPI with lifespan
+app = FastAPI(lifespan=lifespan)
 
 # 3. Prediction Endpoint
 @app.post("/predict")

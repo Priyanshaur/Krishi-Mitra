@@ -5,6 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google' // ✅ Import Google P
 import { I18nextProvider } from 'react-i18next'
 import { store } from './store/store.js'
 import i18n from './i18n/index.js'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import App from './App.jsx'
 import './index.css'
 
@@ -22,7 +23,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <I18nextProvider i18n={i18n}>
         {/* ✅ Wrap App with Google OAuth */}
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </GoogleOAuthProvider>
       </I18nextProvider>
     </Provider>
