@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  Edit3, 
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
+  Phone,
+  Edit3,
   Camera,
   Award,
   ShoppingCart,
@@ -15,14 +15,21 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import { updateProfile } from '../../store/slices/authSlice'; // ✅ Use Real Action
+import { updateProfile } from '../../store/slices/authSlice';
+import { fetchUserMarketItems } from '../../store/slices/marketSlice';
+import { fetchDiagnosisHistory } from '../../store/slices/diagnosisSlice';
+import { fetchFarmerOrders } from '../../store/slices/farmerOrderSlice';
 
 const Profile = () => {
-  const { user } = useSelector(state => state.auth); // ✅ Get Real User
+  const { user } = useSelector(state => state.auth);
+  const { userItems } = useSelector(state => state.market);
+  const { history: diagnosisHistory } = useSelector(state => state.diagnosis);
+  const { orders } = useSelector(state => state.farmerOrders);
+
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Initialize with real user data
   const [profileData, setProfileData] = useState({
     name: '',
@@ -45,21 +52,91 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Mock data for profile statistics (Since backend doesn't aggregate this yet)
+  // Fetch all data on mount
+  useEffect(() => {
+    dispatch(fetchUserMarketItems());
+    dispatch(fetchDiagnosisHistory());
+    if (user?.role === 'farmer') {
+      dispatch(fetchFarmerOrders());
+    }
+  }, [dispatch, user?.role]);
+
+  // Calculate Stats
   const profileStats = [
-    { label: t('profile.stats.listings'), value: '12', icon: ShoppingCart },
-    { label: t('profile.stats.orders'), value: '8', icon: ShoppingCart },
-    { label: t('profile.stats.diagnoses'), value: '5', icon: Leaf },
-    { label: t('profile.stats.revenue'), value: '₹42,500', icon: BarChart3 }
+    { label: t('profile.stats.listings'), value: userItems?.length || 0, icon: ShoppingCart },
+    { label: t('profile.stats.orders'), value: orders?.length || 0, icon: ShoppingCart }, // Using ShoppingCart for orders too for now
+    { label: t('profile.stats.diagnoses'), value: diagnosisHistory?.length || 0, icon: Leaf },
+    { label: t('profile.stats.revenue'), value: `₹${orders?.reduce((acc, order) => acc + (order.totalAmount || 0), 0).toLocaleString()}`, icon: BarChart3 }
   ];
 
-  // Mock data for recent activity
-  const recentActivity = [
-    { id: 1, action: 'Listed new tomato crop', time: '2 hours ago', type: 'listing' },
-    { id: 2, action: 'Completed diagnosis for potato leaves', time: '1 day ago', type: 'diagnosis' },
-    { id: 3, action: 'Received order for onions', time: '2 days ago', type: 'order' },
-    { id: 4, action: 'Updated profile information', time: '3 days ago', type: 'profile' }
-  ];
+  // Generate Recent Activity
+  const getRecentActivity = () => {
+    const activity = [];
+
+    // Add Listings
+    userItems?.forEach(item => {
+      activity.push({
+        id: `listing-${item._id}`,
+        action: `Listed new ${item.name}`,
+        time: new Date(item.createdAt),
+        type: 'listing'
+      });
+    });
+
+    // Add Diagnoses
+    diagnosisHistory?.forEach(item => {
+      activity.push({
+        id: `diagnosis-${item.id || item._id}`,
+        action: `Completed diagnosis for ${item.crop_type || 'plant'}`,
+        time: new Date(item.created_at || item.createdAt),
+        type: 'diagnosis'
+      });
+    });
+
+    // Add Orders
+    orders?.forEach(order => {
+      activity.push({
+        id: `order-${order._id}`,
+        action: `Received order for ${order.items?.[0]?.name || 'items'}`,
+        time: new Date(order.createdAt),
+        type: 'order'
+      });
+    });
+
+    // Add Profile Update (Mock for now as we don't track this yet)
+    if (user?.updatedAt) {
+      activity.push({
+        id: 'profile-update',
+        action: 'Updated profile information',
+        time: new Date(user.updatedAt),
+        type: 'profile'
+      });
+    }
+
+    // Sort by time (newest first) and take top 5
+    return activity.sort((a, b) => b.time - a.time).slice(0, 5).map(item => ({
+      ...item,
+      time: timeAgo(item.time)
+    }));
+  };
+
+  const recentActivity = getRecentActivity();
+
+  // Helper for time ago
+  function timeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +148,6 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // ✅ Dispatch REAL update action
     await dispatch(updateProfile(profileData));
     setIsEditing(false);
   };
@@ -94,7 +170,6 @@ const Profile = () => {
               <div className="relative flex justify-center">
                 <div className="relative">
                   <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden">
-                    {/* ✅ Show Google Picture or Initials */}
                     {user?.profile ? (
                       <img src={user.profile} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
@@ -108,14 +183,13 @@ const Profile = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="text-center mt-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.name}</h2>
                 <p className="text-green-600 font-medium capitalize">{user?.role}</p>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{user?.email}</p>
               </div>
 
-              {/* ✅ Dynamic Details */}
               <div className="mt-6 space-y-3">
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <MapPin className="h-4 w-4 mr-2" />
@@ -131,7 +205,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => setIsEditing(!isEditing)}
                 className="w-full mt-6 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
               >
@@ -186,7 +260,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       {t('profile.email')}
@@ -200,7 +274,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       {t('profile.phone')}
@@ -213,7 +287,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       {t('profile.location')}
@@ -226,7 +300,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       {t('profile.bio')}
@@ -239,7 +313,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                   </div>
-                  
+
                   <div className="flex space-x-3 pt-4">
                     <button
                       type="submit"
@@ -265,7 +339,7 @@ const Profile = () => {
                       <p className="font-medium text-gray-900 dark:text-white">{user?.name}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <Mail className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -273,7 +347,7 @@ const Profile = () => {
                       <p className="font-medium text-gray-900 dark:text-white">{user?.email}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <Phone className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -281,7 +355,7 @@ const Profile = () => {
                       <p className="font-medium text-gray-900 dark:text-white">{user?.phone || 'Not set'}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <MapPin className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -289,7 +363,7 @@ const Profile = () => {
                       <p className="font-medium text-gray-900 dark:text-white">{user?.location || 'Not set'}</p>
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('profile.bio')}</p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -308,22 +382,28 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start pb-4 last:pb-0 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                    <div className="flex-shrink-0 mt-1">
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                        {activity.type === 'listing' && <ShoppingCart className="h-4 w-4 text-green-600 dark:text-green-400" />}
-                        {activity.type === 'diagnosis' && <Leaf className="h-4 w-4 text-green-600 dark:text-green-400" />}
-                        {activity.type === 'order' && <BarChart3 className="h-4 w-4 text-green-600 dark:text-green-400" />}
-                        {activity.type === 'profile' && <User className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                {recentActivity.length > 0 ? (
+                  recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex items-start pb-4 last:pb-0 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                          {activity.type === 'listing' && <ShoppingCart className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                          {activity.type === 'diagnosis' && <Leaf className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                          {activity.type === 'order' && <BarChart3 className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                          {activity.type === 'profile' && <User className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                        </div>
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.action}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{activity.time}</p>
                       </div>
                     </div>
-                    <div className="ml-3 flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.action}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{activity.time}</p>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    No recent activity
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
