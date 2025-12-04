@@ -3,18 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { 
-  fetchFarmerOrder, 
-  updateOrderStatus 
+import {
+  fetchFarmerOrder,
+  updateOrderStatus
 } from '../../store/slices/farmerOrderSlice'
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Truck, 
-  CheckCircle, 
-  XCircle, 
+import {
+  ArrowLeft,
+  MapPin,
+  Phone,
+  Mail,
+  Truck,
+  CheckCircle,
+  XCircle,
   Clock,
   Check
 } from 'lucide-react'
@@ -24,7 +24,7 @@ const OrderDetails = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { currentOrder: order, loading, error } = useSelector(state => state.farmerOrders)
-  
+
   useEffect(() => {
     if (id) {
       dispatch(fetchFarmerOrder(id))
@@ -72,17 +72,17 @@ const OrderDetails = () => {
   const getStatusClass = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
       case 'confirmed':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
       case 'shipped':
-        return 'bg-indigo-100 text-indigo-800'
+        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
       case 'delivered':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
       case 'cancelled':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
   }
 
@@ -101,7 +101,7 @@ const OrderDetails = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading order details...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading order details...</p>
           </div>
         </div>
       </div>
@@ -113,11 +113,11 @@ const OrderDetails = () => {
       <div className="max-w-4xl mx-auto">
         <Card>
           <CardContent className="p-12 text-center">
-            <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-red-600 text-4xl">!</span>
+            <div className="mx-auto w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
+              <span className="text-red-600 dark:text-red-400 text-4xl">!</span>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Order not found</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Order not found</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               {error || 'The order you are looking for does not exist or has been removed.'}
             </p>
             <Button variant="primary" onClick={() => navigate('/marketplace/orders')}>
@@ -134,10 +134,10 @@ const OrderDetails = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button */}
       <div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => navigate('/marketplace/orders')}
-          className="flex items-center"
+          className="flex items-center dark:text-white dark:border-gray-600"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Orders
@@ -149,14 +149,14 @@ const OrderDetails = () => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Order #{order._id.substring(0, 8)}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Order #{order._id.substring(0, 8)}</h1>
               <div className="flex items-center mt-2">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.status)}`}>
                   {getStatusIcon(order.status)}
                   <span className="ml-2">{getStatusText(order.status)}</span>
                 </span>
               </div>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Placed on {new Date(order.createdAt).toLocaleDateString('en-IN', {
                   day: 'numeric',
                   month: 'long',
@@ -164,12 +164,12 @@ const OrderDetails = () => {
                 })}
               </p>
             </div>
-            
+
             <div className="text-right">
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(order.totalAmount)}
               </div>
-              <div className="text-gray-600">
+              <div className="text-gray-600 dark:text-gray-400">
                 Total Amount
               </div>
             </div>
@@ -180,31 +180,31 @@ const OrderDetails = () => {
       {/* Order Items */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-gray-900">Order Items</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Order Items</h2>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {order.items?.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div>
-                  <h3 className="font-medium text-gray-900">{item.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h3 className="font-medium text-gray-900 dark:text-white">{item.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {item.quantity} {item.unit} × {formatCurrency(item.price)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-white">
                     {formatCurrency(item.quantity * item.price)}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-          
-          <div className="border-t border-gray-200 mt-4 pt-4">
+
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
             <div className="flex justify-between">
-              <span className="font-medium text-gray-900">Total</span>
-              <span className="font-bold text-gray-900">
+              <span className="font-medium text-gray-900 dark:text-white">Total</span>
+              <span className="font-bold text-gray-900 dark:text-white">
                 {formatCurrency(order.totalAmount)}
               </span>
             </div>
@@ -215,42 +215,42 @@ const OrderDetails = () => {
       {/* Customer Information */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-gray-900">Customer Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Customer Information</h2>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-800 font-bold text-xl">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <span className="text-blue-800 dark:text-blue-300 font-bold text-xl">
                   {order.buyerId?.name?.charAt(0) || 'C'}
                 </span>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">{order.buyerId?.name || 'Unknown Customer'}</h3>
-                <p className="text-gray-600 text-sm mt-1">
+                <h3 className="font-semibold text-gray-900 dark:text-white">{order.buyerId?.name || 'Unknown Customer'}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                   Customer since {new Date().getFullYear()}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex space-x-3">
-              <Button variant="outline" className="flex items-center">
+              <Button variant="outline" className="flex items-center dark:text-white dark:border-gray-600">
                 <Phone className="h-4 w-4 mr-2" />
                 Call
               </Button>
-              <Button variant="outline" className="flex items-center">
+              <Button variant="outline" className="flex items-center dark:text-white dark:border-gray-600">
                 <Mail className="h-4 w-4 mr-2" />
                 Message
               </Button>
             </div>
           </div>
-          
+
           {order.shippingAddress && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h3 className="font-medium text-gray-900 mb-3">Delivery Address</h3>
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-3">Delivery Address</h3>
               <div className="flex items-start">
-                <MapPin className="h-5 w-5 text-gray-400 mt-0.5 mr-2" />
-                <div className="text-gray-600">
+                <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500 mt-0.5 mr-2" />
+                <div className="text-gray-600 dark:text-gray-400">
                   <p>{order.shippingAddress.street}</p>
                   <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</p>
                   <p className="mt-1">Phone: {order.shippingAddress.contactNumber || 'Not provided'}</p>
@@ -264,26 +264,26 @@ const OrderDetails = () => {
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
         {order.status === 'pending' && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => handleStatusUpdate('confirmed')}
           >
             Confirm Order
           </Button>
         )}
-        
+
         {order.status === 'confirmed' && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => handleStatusUpdate('shipped')}
           >
             Mark as Shipped
           </Button>
         )}
-        
+
         {order.status === 'shipped' && (
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => handleStatusUpdate('delivered')}
             className="flex items-center"
           >
@@ -291,12 +291,12 @@ const OrderDetails = () => {
             Mark as Delivered
           </Button>
         )}
-        
+
         {(order.status === 'pending' || order.status === 'confirmed') && (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => handleStatusUpdate('cancelled')}
-            className="text-red-600 border-red-200 hover:bg-red-50"
+            className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-900/50"
           >
             Cancel Order
           </Button>

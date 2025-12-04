@@ -35,7 +35,7 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('API Response Error:', error.response?.status, error.response?.data);
-    
+
     // Only redirect to login if we were previously authenticated
     if (error.response?.status === 401) {
       const token = localStorage.getItem('token');
@@ -51,33 +51,33 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  login: (email, password) => 
+  login: (email, password) =>
     api.post('/auth/login', { email, password }).then(res => res.data),
-  
-  googleLogin: (token) => // ✅ ADD THIS
+
+  googleLogin: (token) =>
     api.post('/auth/google', { token }).then(res => res.data),
-    
-  register: (userData) => 
+
+  register: (userData) =>
     api.post('/auth/register', userData).then(res => res.data),
-  
-  getMe: () => 
+
+  getMe: () =>
     api.get('/auth/me').then(res => res.data),
-  
-  updateProfile: (profileData) => 
+
+  updateProfile: (profileData) =>
     api.put('/auth/profile', profileData).then(res => res.data),
-  
-  updatePreferences: (preferences) => 
+
+  updatePreferences: (preferences) =>
     api.put('/auth/preferences', preferences).then(res => res.data),
-  
-  logout: () => 
+
+  logout: () =>
     api.post('/auth/logout').then(res => res.data),
 }
 
 // Market API
 export const marketAPI = {
-  getItems: (params = {}) => 
+  getItems: (params = {}) =>
     api.get('/market/items', { params }).then(res => res.data),
-  
+
   getItem: (id) => {
     console.log('API Service: Getting item with ID:', id);
     return api.get(`/market/items/${id}`).then(res => {
@@ -85,7 +85,7 @@ export const marketAPI = {
       return res.data;
     });
   },
-  
+
   createItem: (itemData) => {
     console.log('API: Creating item with data:', itemData);
     return api.post('/market/items', itemData).then(res => {
@@ -98,26 +98,35 @@ export const marketAPI = {
     });
   },
 
-  updateItem: (id, itemData) => 
+  updateItem: (id, itemData) =>
     api.put(`/market/items/${id}`, itemData).then(res => res.data),
-  
-  deleteItem: (id) => 
+
+  deleteItem: (id) =>
     api.delete(`/market/items/${id}`).then(res => res.data),
-  
-  getUserItems: () => 
+
+  getUserItems: () =>
     api.get('/market/items/my').then(res => res.data),
 }
 
 // Farmer Orders API
 export const farmerOrdersAPI = {
-  getOrders: () => 
+  getOrders: () =>
     api.get('/farmer/orders').then(res => res.data),
-  
-  getOrder: (id) => 
+
+  getOrder: (id) =>
     api.get(`/farmer/orders/${id}`).then(res => res.data),
-  
-  updateOrderStatus: (id, status) => 
+
+  updateOrderStatus: (id, status) =>
     api.put(`/farmer/orders/${id}/status`, { status }).then(res => res.data),
+}
+
+// Buyer Orders API
+export const buyerOrdersAPI = {
+  createOrder: (orderData) =>
+    api.post('/orders', orderData).then(res => res.data),
+
+  getMyOrders: () =>
+    api.get('/orders/my').then(res => res.data),
 }
 
 // Diagnosis API
@@ -125,7 +134,7 @@ export const diagnosisAPI = {
   diagnose: (formData) => {
     console.log('Diagnosis API: Sending request with formData');
     return api.post('/diagnose', formData, {
-      headers: { 
+      headers: {
         'Content-Type': 'multipart/form-data'
       }
     }).then(res => {
@@ -136,34 +145,34 @@ export const diagnosisAPI = {
       throw error;
     });
   },
-  
-  getHistory: (params = {}) => 
+
+  getHistory: (params = {}) =>
     api.get('/diagnose/history', { params }).then(res => res.data),
-  
-  getDiagnosis: (id) => 
+
+  getDiagnosis: (id) =>
     api.get(`/diagnose/${id}`).then(res => res.data),
 }
 
 // Dashboard API
 export const dashboardAPI = {
-  getFarmerStats: () => 
+  getFarmerStats: () =>
     api.get('/dashboard/farmer/stats').then(res => res.data),
-  
-  getBuyerStats: () => 
+
+  getBuyerStats: () =>
     api.get('/dashboard/buyer/stats').then(res => res.data),
-  
-  getRecentActivity: () => 
+
+  getRecentActivity: () =>
     api.get('/dashboard/activity').then(res => res.data),
-  
-  getCropHealth: () => 
+
+  getCropHealth: () =>
     api.get('/dashboard/crop-health').then(res => res.data),
-  
-  getRecommendedFarmers: () => 
+
+  getRecommendedFarmers: () =>
     api.get('/dashboard/recommended-farmers').then(res => res.data),
 }
 
 export const chatAPI = {
-  sendMessage: (message) => 
+  sendMessage: (message) =>
     api.post('/chat', { message }).then(res => res.data),
 }
 

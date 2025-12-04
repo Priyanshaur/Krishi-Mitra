@@ -30,7 +30,7 @@ export const getFarmerStats = async (req, res) => {
       }
     });
 
-    // 3. Calculate total revenue (Using fallback for now as Orders might be empty)
+    // 3. Calculate total revenue
     let totalRevenue = 0;
     try {
       // Try fetching from Orders table first
@@ -44,17 +44,11 @@ export const getFarmerStats = async (req, res) => {
         },
         raw: true
       });
-      
+
       if (revenueData && revenueData[0] && revenueData[0].totalRevenue) {
         totalRevenue = parseFloat(revenueData[0].totalRevenue);
       } else {
-        // Fallback: Estimate based on MarketItems if no orders yet
-        const marketItems = await MarketItem.findAll({ where: { sellerId: userId } });
-        totalRevenue = marketItems.reduce((total, item) => {
-          const price = parseFloat(item.price) || 0;
-          const qty = parseInt(item.quantity) || 0;
-          return total + (price * qty * 0.3); // Estimate 30% sold
-        }, 0);
+        totalRevenue = 0;
       }
     } catch (error) {
       console.log('Revenue calculation error:', error.message);
@@ -217,7 +211,7 @@ export const getRecentActivity = async (req, res) => {
 
     // Sort combined activity
     activity.sort((a, b) => new Date(b.time) - new Date(a.time));
-    
+
     const formattedActivity = activity.map(item => ({
       ...item,
       time: formatTimeAgo(item.time)
@@ -262,7 +256,7 @@ export const getCropHealth = async (req, res) => {
       }
       cropGroups[d.cropType].total++;
       cropGroups[d.cropType].confidenceSum += (d.prediction_confidence || 0);
-      
+
       if (d.severity === 'critical') cropGroups[d.cropType].critical++;
       if (d.severity === 'high') cropGroups[d.cropType].high++;
     });
@@ -273,7 +267,7 @@ export const getCropHealth = async (req, res) => {
       const issuesScore = (data.critical * 5) + (data.high * 3);
       // Base health on issues, clamped between 0 and 100
       const healthScore = Math.max(0, Math.min(100, 100 - (issuesScore * 10)));
-      
+
       let healthStatus = 'Good';
       let issuesCount = 0;
 
@@ -338,7 +332,7 @@ export const getRecommendedFarmers = async (req, res) => {
     const formattedFarmers = farmersData.map(item => {
       const seller = item.seller || {};
       const totalQty = parseInt(item.getDataValue('totalQuantity') || 0);
-      
+
       let deliveryTime = '1-2 days';
       if (totalQty >= 1000) deliveryTime = '3-4 days';
       else if (totalQty >= 500) deliveryTime = '2-3 days';
@@ -347,7 +341,7 @@ export const getRecommendedFarmers = async (req, res) => {
         name: seller.name || 'Unknown Farmer',
         rating: seller.rating || 4.5,
         itemCount: item.getDataValue('itemCount'),
-        specialties: ['General Farming'], 
+        specialties: ['General Farming'],
         totalQuantity: totalQty,
         deliveryTime
       };

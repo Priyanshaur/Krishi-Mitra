@@ -263,9 +263,24 @@ const Diagnose = () => {
                   </div>
                 </div>
 
-                {/* Action Buttons - Removed Report Generation as requested */}
+                {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Button variant="outline" className="flex-1 dark:text-white dark:border-gray-600">
+                  <Button
+                    variant="outline"
+                    className="flex-1 dark:text-white dark:border-gray-600"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: 'Crop Diagnosis Result',
+                          text: `I diagnosed my crop with Krishi Mitra. Disease: ${diagnosisResult.prediction_disease || 'Unknown'}. Check it out!`,
+                          url: window.location.href
+                        }).catch(console.error);
+                      } else {
+                        navigator.clipboard.writeText(`Diagnosis: ${diagnosisResult.prediction_disease || 'Unknown'}`);
+                        alert('Result copied to clipboard!');
+                      }
+                    }}
+                  >
                     Share Results
                   </Button>
                 </div>

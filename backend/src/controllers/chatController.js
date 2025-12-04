@@ -7,17 +7,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export const chatWithAI = async (req, res) => {
   try {
     const { message } = req.body;
-    
+
     if (!process.env.GEMINI_API_KEY) {
-      return res.json({ 
-        success: true, 
-        response: "⚠️ API Key missing. I can only give basic advice right now." 
+      return res.json({
+        success: true,
+        response: "⚠️ API Key missing. I can only give basic advice right now."
       });
     }
 
-    // ✅ FIX: Use the specific version number
     // ✅ Correct model from your list
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const prompt = `
       You are 'Krishi Mitra', an expert agricultural AI assistant for Indian farmers.
       Answer this user question in simple, helpful English (or Hindi/Marathi if asked).
@@ -28,7 +27,7 @@ export const chatWithAI = async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     res.json({
       success: true,
       response: text

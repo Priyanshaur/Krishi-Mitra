@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { Menu, Bell, Search, User, Home } from 'lucide-react'
+import { Menu, Bell, User, Home } from 'lucide-react'
 import { logoutUser } from '../../store/slices/authSlice'
 import { markAsRead } from '../../store/slices/notificationSlice'
 import Button from '../ui/Button'
@@ -54,7 +54,7 @@ const Header = ({ onMenuToggle }) => {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            
+
             <div className="flex items-center space-x-3">
               <Link to="/" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
@@ -64,7 +64,7 @@ const Header = ({ onMenuToggle }) => {
                   Krishi Mitra
                 </span>
               </Link>
-              
+
               <h1 className="text-xl font-semibold text-gray-900 hidden sm:block dark:text-white">
                 {getPageTitle()}
               </h1>
@@ -73,26 +73,17 @@ const Header = ({ onMenuToggle }) => {
 
           {/* Right Section */}
           <div className="flex items-center space-x-4">
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:block relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder={t('header.searchPlaceholder')}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64 bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-500"
-              />
-            </div>
 
             {/* Notifications */}
             <div className="relative">
-              <Button 
-                variant="ghost" 
-                size="small" 
+              <Button
+                variant="ghost"
+                size="small"
                 onClick={handleNotificationClick}
                 className="relative text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
               >
                 <Bell className="h-5 w-5" />
-                
+
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-gray-800">
                     {unreadCount}
@@ -139,9 +130,9 @@ const Header = ({ onMenuToggle }) => {
                     <User className="h-4 w-4 text-green-600 dark:text-green-400" />
                   </div>
                 </Link>
-                <Button 
-                  variant="ghost" 
-                  size="small" 
+                <Button
+                  variant="ghost"
+                  size="small"
                   onClick={handleLogout}
                   className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                 >

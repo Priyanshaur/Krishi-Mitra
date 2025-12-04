@@ -29,7 +29,7 @@ import Chatbot from './components/Chat/Chatbot'
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSelector(state => state.auth)
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
       </div>
     )
   }
-  
+
   return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
@@ -62,7 +62,7 @@ function App() {
     };
 
     window.addEventListener('unauthorized', handleUnauthorized);
-    
+
     return () => {
       window.removeEventListener('unauthorized', handleUnauthorized);
     };
@@ -72,13 +72,13 @@ function App() {
     <Router>
       <div className="App">
         <Toaster position="top-right" />
-        
+
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
-          
+
           {/* Protected Routes with Layout */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
@@ -87,7 +87,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/marketplace" element={
             <ProtectedRoute>
               <Layout>
@@ -95,7 +95,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/marketplace/:id" element={
             <ProtectedRoute>
               <Layout>
@@ -103,7 +103,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/marketplace/create" element={
             <ProtectedRoute>
               <Layout>
@@ -111,7 +111,15 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
+          <Route path="/marketplace/edit/:id" element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateListing />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
           <Route path="/marketplace/my" element={
             <ProtectedRoute>
               <Layout>
@@ -119,7 +127,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/marketplace/orders" element={
             <ProtectedRoute>
               <Layout>
@@ -127,7 +135,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/marketplace/orders/:id" element={
             <ProtectedRoute>
               <Layout>
@@ -135,7 +143,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/diagnose" element={
             <ProtectedRoute>
               <Layout>
@@ -143,7 +151,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/settings" element={
             <ProtectedRoute>
               <Layout>
@@ -151,7 +159,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/profile" element={
             <ProtectedRoute>
               <Layout>
@@ -159,11 +167,11 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/chat" element={
             <ProtectedRoute>
               <Layout>
-                <Chatbot isPage={true} /> {/* ✅ NEW: Tells chatbot to fill the page */}
+                <Chatbot isPage={true} />
               </Layout>
             </ProtectedRoute>
           } />

@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { createMarketItem } from '../../store/slices/marketSlice'
+import { useNavigate, useParams } from 'react-router-dom'
+import { createMarketItem, updateMarketItem, fetchMarketItem } from '../../store/slices/marketSlice'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -9,9 +9,11 @@ import { X, Upload, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const CreateListing = () => {
+  const { id } = useParams() // Get ID from URL for edit mode
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading } = useSelector(state => state.market)
+  const { loading, currentItem } = useSelector(state => state.market)
+  const isEditMode = !!id
 
   const [formData, setFormData] = useState({
     title: '',
@@ -34,6 +36,42 @@ const CreateListing = () => {
   const [tagInput, setTagInput] = useState('')
   const [images, setImages] = useState([])
   const [imagePreviews, setImagePreviews] = useState([])
+
+  // Fetch item details if in edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      dispatch(fetchMarketItem(id))
+    }
+  }, [dispatch, id, isEditMode])
+
+  // Populate form when currentItem is available in edit mode
+  useEffect(() => {
+    if (isEditMode && currentItem) {
+      setFormData({
+        title: currentItem.title || '',
+        description: currentItem.description || '',
+        price: currentItem.price || '',
+        unit: currentItem.unit || 'kg',
+        quantity: currentItem.quantity || '',
+        category: currentItem.category || 'vegetables',
+        qualityGrade: currentItem.qualityGrade || 'standard',
+        organic: currentItem.organic || false,
+        harvestDate: currentItem.harvestDate ? new Date(currentItem.harvestDate).toISOString().split('T')[0] : '',
+        location: {
+          city: currentItem.location_city || currentItem.location?.city || '',
+          state: currentItem.location_state || currentItem.location?.state || '',
+          pincode: currentItem.location_pincode || currentItem.location?.pincode || ''
+        },
+        tags: currentItem.tags || []
+      })
+
+      if (currentItem.images && currentItem.images.length > 0) {
+        setImagePreviews(currentItem.images.map(img => img.url))
+        // Note: We can't easily convert URLs back to File objects, so we'll handle existing images differently if needed
+        // For now, we assume new uploads replace old ones or append (logic below needs care)
+      }
+    }
+  }, [isEditMode, currentItem])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -100,9 +138,17 @@ const CreateListing = () => {
     const newPreviews = [...imagePreviews]
     const newImages = [...images]
 
-    URL.revokeObjectURL(newPreviews[index])
+    // Only revoke if it's a blob URL (newly uploaded)
+    if (newPreviews[index].startsWith('blob:')) {
+      URL.revokeObjectURL(newPreviews[index])
+    }
+
     newPreviews.splice(index, 1)
-    newImages.splice(index, 1)
+    // Adjust images array only if it corresponds to a new file
+    // This logic is simplified; for robust edit, we'd track existing vs new images separately
+    if (index >= (imagePreviews.length - images.length)) {
+      newImages.splice(index - (imagePreviews.length - images.length), 1)
+    }
 
     setImagePreviews(newPreviews)
     setImages(newImages)
@@ -136,7 +182,7 @@ const CreateListing = () => {
       // Remove the nested location object to avoid backend errors
       delete submitData.location;
 
-      // Use image previews directly
+      // Use image previews directly (simplified for demo)
       if (imagePreviews.length > 0) {
         submitData.images = imagePreviews.map((preview, index) => ({
           url: preview,
@@ -144,18 +190,26 @@ const CreateListing = () => {
         }))
       }
 
-      const result = await dispatch(createMarketItem(submitData)).unwrap()
-      toast.success('Listing created successfully!')
+      if (isEditMode) {
+        await dispatch(updateMarketItem({ id, itemData: submitData })).unwrap()
+        toast.success('Listing updated successfully!')
+      } else {
+        await dispatch(createMarketItem(submitData)).unwrap()
+        toast.success('Listing created successfully!')
+      }
+
       navigate('/marketplace/my')
     } catch (error) {
-      toast.error(error || 'Failed to create listing')
+      toast.error(error || `Failed to ${isEditMode ? 'update' : 'create'} listing`)
     }
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Listing</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {isEditMode ? 'Edit Listing' : 'Create New Listing'}
+        </h1>
         <Button
           variant="outline"
           onClick={() => navigate('/marketplace/my')}
@@ -463,7 +517,7 @@ const CreateListing = () => {
                 loading={loading}
                 disabled={loading}
               >
-                {loading ? 'Creating...' : 'Create Listing'}
+                {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Listing' : 'Create Listing')}
               </Button>
             </div>
           </form>
