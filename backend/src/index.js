@@ -33,14 +33,14 @@ app.use(express.json());
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }));
 
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100
+  max: 1000 // Increased limit for development
 });
 app.use(limiter);
 

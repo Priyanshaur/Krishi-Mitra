@@ -13,6 +13,7 @@ const MarketList = () => {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All Categories')
+  const [showNearMe, setShowNearMe] = useState(false)
 
   // Local state for filtered items
   const [filteredItems, setFilteredItems] = useState([])
@@ -43,9 +44,19 @@ const MarketList = () => {
         );
       }
 
+      // Filter by location (Near Me)
+      if (showNearMe && user?.location) {
+        const userLoc = user.location.toLowerCase();
+        result = result.filter(item => {
+          const city = item.location?.city || item.location_city || '';
+          const state = item.location?.state || item.location_state || '';
+          return (city && userLoc.includes(city.toLowerCase())) || (state && userLoc.includes(state.toLowerCase()));
+        });
+      }
+
       setFilteredItems(result);
     }
-  }, [items, searchTerm, categoryFilter]);
+  }, [items, searchTerm, categoryFilter, showNearMe, user?.location]);
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -120,6 +131,14 @@ const MarketList = () => {
             <option value="spices">Spices</option>
             <option value="others">Others</option>
           </select>
+          <Button
+            variant={showNearMe ? "primary" : "outline"}
+            onClick={() => setShowNearMe(!showNearMe)}
+            className={`flex items-center justify-center py-3 rounded-xl transition-all ${showNearMe ? '' : 'border-gray-200 dark:border-gray-600 hover:border-green-500 hover:text-green-600 bg-white/50 dark:bg-gray-800 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+          >
+            <MapPin className="h-4 w-4 mr-2" />
+            Near Me
+          </Button>
           <Button variant="outline" className="flex items-center justify-center py-3 rounded-xl border-gray-200 dark:border-gray-600 hover:border-green-500 hover:text-green-600 bg-white/50 dark:bg-gray-800 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all text-gray-700 dark:text-gray-300">
             <Filter className="h-4 w-4 mr-2" />
             More Filters
