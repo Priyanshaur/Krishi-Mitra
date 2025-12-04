@@ -16,6 +16,8 @@ import CreateListing from './pages/Marketplace/CreateListing'
 import MyListings from './pages/Marketplace/MyListings'
 import Orders from './pages/Marketplace/Orders'
 import OrderDetails from './pages/Marketplace/OrderDetails'
+import BuyerOrders from './pages/Marketplace/BuyerOrders'
+import BuyerOrderDetails from './pages/Marketplace/BuyerOrderDetails'
 import Diagnose from './pages/Diagnose/Diagnose'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
@@ -28,14 +30,16 @@ import Chatbot from './components/Chat/Chatbot'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useSelector(state => state.auth)
+  const { isAuthenticated, loading, token } = useSelector(state => state.auth)
 
-  if (loading) {
+  // If we have a token but are not authenticated yet (e.g. on refresh), show loading
+  // This prevents premature redirect to login while fetchUser is running
+  if (loading || (token && !isAuthenticated)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     )
@@ -140,6 +144,22 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <OrderDetails />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <Layout>
+                <BuyerOrders />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/orders/:id" element={
+            <ProtectedRoute>
+              <Layout>
+                <BuyerOrderDetails />
               </Layout>
             </ProtectedRoute>
           } />

@@ -89,12 +89,12 @@ const farmerOrderSlice = createSlice({
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.loading = false
         // Update the order in the orders list
-        const index = state.orders.findIndex(order => order._id === action.payload.data._id)
+        const index = state.orders.findIndex(order => order.id === action.payload.data.id)
         if (index !== -1) {
           state.orders[index] = action.payload.data
         }
         // Update current order if it's the same
-        if (state.currentOrder && state.currentOrder._id === action.payload.data._id) {
+        if (state.currentOrder && state.currentOrder.id === action.payload.data.id) {
           state.currentOrder = action.payload.data
         }
       })

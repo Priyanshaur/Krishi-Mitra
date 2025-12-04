@@ -1,5 +1,6 @@
 import MarketItem from '../models/MarketItem.js';
 import User from '../models/User.js';
+import { Op } from 'sequelize';
 
 // GET MARKET ITEMS FROM DATABASE
 export const getMarketItems = async (req, res) => {
@@ -18,23 +19,23 @@ export const getMarketItems = async (req, res) => {
 
     // Build database query
     const where = { status: 'active' };
-    
+
     if (category) where.category = category;
     if (organic !== undefined) where.organic = organic === 'true';
     if (qualityGrade) where.qualityGrade = qualityGrade;
-    
+
     if (minPrice || maxPrice) {
       where.price = {};
-      if (minPrice) where.price[Sequelize.Op.gte] = Number(minPrice);
-      if (maxPrice) where.price[Sequelize.Op.lte] = Number(maxPrice);
+      if (minPrice) where.price[Op.gte] = Number(minPrice);
+      if (maxPrice) where.price[Op.lte] = Number(maxPrice);
     }
-    
+
     // For location search, we would need a more complex query
     // This is a simplified version
     if (search) {
-      where[Sequelize.Op.or] = [
-        { title: { [Sequelize.Op.like]: `%${search}%` } },
-        { description: { [Sequelize.Op.like]: `%${search}%` } }
+      where[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
       ];
     }
 
@@ -74,11 +75,7 @@ export const getMarketItems = async (req, res) => {
 export const getMarketItem = async (req, res) => {
   try {
     console.log('Fetching market item with ID:', req.params.id);
-    
-    // First, let's try to find all items to see what's in the database
-    const allItems = await MarketItem.findAll();
-    console.log('All items in database:', allItems.map(item => item.id));
-    
+
     const item = await MarketItem.findByPk(req.params.id, {
       include: [{
         model: User,
@@ -115,15 +112,15 @@ export const createMarketItem = async (req, res) => {
   try {
     console.log('Creating market item with request body:', req.body);
     console.log('User ID:', req.user.id);
-    
+
     // Prepare location data
     const locationData = {};
     if (req.body.location) {
-      if (req.body.location.city) locationData['location.city'] = req.body.location.city;
-      if (req.body.location.state) locationData['location.state'] = req.body.location.state;
-      if (req.body.location.pincode) locationData['location.pincode'] = req.body.location.pincode;
+      if (req.body.location.city) locationData.location_city = req.body.location.city;
+      if (req.body.location.state) locationData.location_state = req.body.location.state;
+      if (req.body.location.pincode) locationData.location_pincode = req.body.location.pincode;
     }
-    
+
     // Prepare tags data
     let tagsData = req.body.tags;
     if (typeof tagsData === 'string') {
@@ -133,7 +130,7 @@ export const createMarketItem = async (req, res) => {
         tagsData = tagsData ? tagsData.split(',') : [];
       }
     }
-    
+
     // Prepare images data
     let imagesData = req.body.images;
     if (typeof imagesData === 'string') {
@@ -210,15 +207,15 @@ export const updateMarketItem = async (req, res) => {
 
     // Prepare update data
     const updateData = { ...req.body };
-    
+
     // Handle location data
     if (req.body.location) {
-      if (req.body.location.city) updateData['location.city'] = req.body.location.city;
-      if (req.body.location.state) updateData['location.state'] = req.body.location.state;
-      if (req.body.location.pincode) updateData['location.pincode'] = req.body.location.pincode;
+      if (req.body.location.city) updateData.location_city = req.body.location.city;
+      if (req.body.location.state) updateData.location_state = req.body.location.state;
+      if (req.body.location.pincode) updateData.location_pincode = req.body.location.pincode;
       delete updateData.location;
     }
-    
+
     // Handle tags data
     if (req.body.tags && typeof req.body.tags === 'string') {
       try {
@@ -227,7 +224,7 @@ export const updateMarketItem = async (req, res) => {
         updateData.tags = req.body.tags ? req.body.tags.split(',') : [];
       }
     }
-    
+
     // Handle images data
     if (req.body.images && typeof req.body.images === 'string') {
       try {

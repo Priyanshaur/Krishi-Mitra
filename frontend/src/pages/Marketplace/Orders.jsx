@@ -239,12 +239,12 @@ const Orders = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {orders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {order._id.substring(0, 8)}
+                        {order.id.substring(0, 8)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {order.buyerId?.name || 'Unknown Customer'}
+                        {order.buyer?.name || 'Unknown Customer'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {order.items?.map(item => item.title).join(', ') || 'Unknown Item'}
@@ -269,7 +269,7 @@ const Orders = () => {
                           <Button
                             variant="outline"
                             size="small"
-                            onClick={() => handleStatusUpdate(order._id, 'confirmed')}
+                            onClick={() => handleStatusUpdate(order.id, 'confirmed')}
                             className="mr-2 dark:text-white dark:border-gray-600"
                           >
                             Confirm
@@ -279,7 +279,7 @@ const Orders = () => {
                           <Button
                             variant="outline"
                             size="small"
-                            onClick={() => handleStatusUpdate(order._id, 'shipped')}
+                            onClick={() => handleStatusUpdate(order.id, 'shipped')}
                             className="mr-2 dark:text-white dark:border-gray-600"
                           >
                             Ship
@@ -289,14 +289,14 @@ const Orders = () => {
                           <Button
                             variant="outline"
                             size="small"
-                            onClick={() => handleStatusUpdate(order._id, 'delivered')}
+                            onClick={() => handleStatusUpdate(order.id, 'delivered')}
                             className="mr-2 dark:text-white dark:border-gray-600"
                           >
                             <Check className="h-4 w-4 mr-1" />
                             Deliver
                           </Button>
                         )}
-                        <Link to={`/marketplace/orders/${order._id}`}>
+                        <Link to={`/marketplace/orders/${order.id}`}>
                           <Button variant="outline" size="small" className="dark:text-white dark:border-gray-600">
                             View Details
                           </Button>
