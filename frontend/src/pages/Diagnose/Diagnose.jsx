@@ -92,15 +92,11 @@ const Diagnose = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Crop Disease Diagnosis</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Crop Disease Diagnosis</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Upload an image of your crop leaf to detect diseases and get AI-powered recommendations
           </p>
         </div>
-        <Button variant="outline">
-          <History className="h-4 w-4 mr-2" />
-          View History
-        </Button>
       </div>
 
       {error && (
@@ -116,15 +112,15 @@ const Diagnose = () => {
         {/* Upload Section */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-medium text-gray-900">Upload Image for Analysis</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Upload Image for Analysis</h3>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Crop Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Crop Type</label>
                 <select
                   {...register('cropType', { required: true })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   defaultValue=""
                 >
                   <option value="" disabled>Select a crop...</option>
@@ -138,8 +134,8 @@ const Diagnose = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Leaf Image</label>
-                <div className="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-gray-300 border-dashed rounded-xl hover:border-green-400 transition-colors cursor-pointer">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Leaf Image</label>
+                <div className="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-xl hover:border-green-400 dark:hover:border-green-500 transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800/50">
                   <label htmlFor="image-upload" className="text-center cursor-pointer">
                     {previewUrl ? (
                       <div className="space-y-4">
@@ -153,13 +149,13 @@ const Diagnose = () => {
                     ) : (
                       <div className="space-y-3">
                         <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <span className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
+                        <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                          <span className="relative cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-green-600 hover:text-green-500 px-2">
                             Upload an image
                           </span>
                           <p className="pl-1">or drag and drop</p>
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, JPEG up to 10MB</p>
                       </div>
                     )}
                     <input
@@ -174,13 +170,13 @@ const Diagnose = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Additional Notes (Optional)
                 </label>
                 <textarea
                   {...register('notes')}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                   placeholder="Describe any symptoms you've observed, weather conditions, or other relevant information..."
                 />
               </div>
@@ -203,14 +199,14 @@ const Diagnose = () => {
         {/* Results Section */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-medium text-gray-900">Diagnosis Results</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Diagnosis Results</h3>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Analyzing your image with AI...</p>
+                  <p className="text-gray-600 dark:text-gray-400">Analyzing your image with AI...</p>
                   <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
                 </div>
               </div>
@@ -220,27 +216,27 @@ const Diagnose = () => {
                 <div className={`p-4 rounded-xl border-2 ${severityColors[diagnosisResult.severity]}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-lg">{diagnosisResult['prediction.disease'] || 'Unknown Disease'}</h4>
-                      <p className="text-sm opacity-75">{diagnosisResult['prediction.scientificName'] || 'Unknown'}</p>
+                      <h4 className="font-bold text-lg">{diagnosisResult.prediction_disease || 'Unknown Disease'}</h4>
+                      <p className="text-sm opacity-75">{diagnosisResult.prediction_scientificName || 'Unknown'}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Treatment Recommendations */}
                 <div>
-                  <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
                     Recommended Treatment
                   </h5>
-                  <p className="text-gray-700 bg-green-50 p-3 rounded-lg">
+                  <p className="text-gray-700 dark:text-gray-300 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
                     No treatment recommendations available
                   </p>
                 </div>
 
                 {/* Prevention Tips */}
                 <div>
-                  <h5 className="font-semibold text-gray-900 mb-3">Prevention Tips</h5>
-                  <p className="text-gray-700">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-3">Prevention Tips</h5>
+                  <p className="text-gray-700 dark:text-gray-300">
                     No prevention tips available
                   </p>
                 </div>
@@ -248,8 +244,8 @@ const Diagnose = () => {
                 {/* Treatment Options */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h6 className="font-medium text-green-700 mb-2">🌱 Organic Remedies</h6>
-                    <ul className="text-sm text-gray-700 space-y-1">
+                    <h6 className="font-medium text-green-700 dark:text-green-400 mb-2">🌱 Organic Remedies</h6>
+                    <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">•</span>
                         No organic remedies available
@@ -257,8 +253,8 @@ const Diagnose = () => {
                     </ul>
                   </div>
                   <div>
-                    <h6 className="font-medium text-blue-700 mb-2">⚗️ Chemical Treatments</h6>
-                    <ul className="text-sm text-gray-700 space-y-1">
+                    <h6 className="font-medium text-blue-700 dark:text-blue-400 mb-2">⚗️ Chemical Treatments</h6>
+                    <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                       <li className="flex items-start">
                         <span className="text-blue-500 mr-2">•</span>
                         No chemical treatments available
@@ -269,20 +265,31 @@ const Diagnose = () => {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Button variant="primary" className="flex-1">
-                    <Download className="h-4 w-4 mr-2" />
-                    Save Report
-                  </Button>
-                  <Button variant="outline" className="flex-1">
+                  <Button
+                    variant="outline"
+                    className="flex-1 dark:text-white dark:border-gray-600"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: 'Crop Diagnosis Result',
+                          text: `I diagnosed my crop with Krishi Mitra. Disease: ${diagnosisResult.prediction_disease || 'Unknown'}. Check it out!`,
+                          url: window.location.href
+                        }).catch(console.error);
+                      } else {
+                        navigator.clipboard.writeText(`Diagnosis: ${diagnosisResult.prediction_disease || 'Unknown'}`);
+                        alert('Result copied to clipboard!');
+                      }
+                    }}
+                  >
                     Share Results
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="text-center py-16">
-                <Scan className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Upload an image to get AI-powered diagnosis results</p>
-                <p className="text-sm text-gray-400 mt-2">Supports 50+ common crop diseases</p>
+                <Scan className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">Upload an image to get AI-powered diagnosis results</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Supports 50+ common crop diseases</p>
               </div>
             )}
           </CardContent>
@@ -292,23 +299,23 @@ const Diagnose = () => {
       {/* Recent Diagnoses */}
       <Card>
         <CardHeader>
-          <h3 className="text-lg font-medium text-gray-900">Recent Diagnoses</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recent Diagnoses</h3>
         </CardHeader>
         <CardContent>
           {history && history.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {history.map((item) => (
-                <div key={item.id} className="bg-gray-50 p-4 rounded-lg">
+                <div key={item.id} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded capitalize">{item.cropType}</span>
-                    <span className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded capitalize">{item.cropType}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p className="font-medium">{item['prediction.disease'] || 'Unknown'}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{item.prediction_disease || 'Unknown'}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <p>No recent diagnoses found.</p>
             </div>
           )}

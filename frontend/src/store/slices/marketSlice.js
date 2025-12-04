@@ -58,6 +58,30 @@ export const createMarketItem = createAsyncThunk(
   }
 );
 
+export const updateMarketItem = createAsyncThunk(
+  'market/updateItem',
+  async ({ id, itemData }, { rejectWithValue }) => {
+    try {
+      const response = await marketAPI.updateItem(id, itemData)
+      return response
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update item')
+    }
+  }
+)
+
+export const deleteMarketItem = createAsyncThunk(
+  'market/deleteItem',
+  async (id, { rejectWithValue }) => {
+    try {
+      await marketAPI.deleteItem(id)
+      return id
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete item')
+    }
+  }
+)
+
 const marketSlice = createSlice({
   name: 'market',
   initialState: {
@@ -139,6 +163,43 @@ const marketSlice = createSlice({
         state.userItems.unshift(action.payload.data)
       })
       .addCase(createMarketItem.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+      // Update item
+      .addCase(updateMarketItem.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(updateMarketItem.fulfilled, (state, action) => {
+        state.loading = false
+        const index = state.items.findIndex(item => item.id === action.payload.data.id)
+        if (index !== -1) {
+          state.items[index] = action.payload.data
+        }
+        const userIndex = state.userItems.findIndex(item => item.id === action.payload.data.id)
+        if (userIndex !== -1) {
+          state.userItems[userIndex] = action.payload.data
+        }
+        if (state.currentItem && state.currentItem.id === action.payload.data.id) {
+          state.currentItem = action.payload.data
+        }
+      })
+      .addCase(updateMarketItem.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+      // Delete item
+      .addCase(deleteMarketItem.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(deleteMarketItem.fulfilled, (state, action) => {
+        state.loading = false
+        state.items = state.items.filter(item => item.id !== action.payload)
+        state.userItems = state.userItems.filter(item => item.id !== action.payload)
+      })
+      .addCase(deleteMarketItem.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
       })

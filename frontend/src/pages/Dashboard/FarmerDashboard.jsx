@@ -219,8 +219,8 @@ const FarmerDashboard = () => {
         {quickActions.map((action, index) => (
           <div key={action.title} className="glass p-6 rounded-2xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group cursor-pointer" style={{ animationDelay: `${0.4 + (index * 0.1)}s` }}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${action.color === 'primary'
-                ? 'bg-green-100 text-green-600'
-                : 'bg-yellow-100 text-yellow-600'
+              ? 'bg-green-100 text-green-600'
+              : 'bg-yellow-100 text-yellow-600'
               }`}>
               <action.icon className="h-6 w-6" />
             </div>
@@ -253,7 +253,7 @@ const FarmerDashboard = () => {
               {recentActivity.length > 0 ? recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-green-200 transition-colors shadow-sm">
                   <div className={`w-3 h-3 rounded-full shadow-sm ${activity.status === 'completed' ? 'bg-green-500' :
-                      activity.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
+                    activity.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
                     }`}></div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-900">{activity.message}</p>
@@ -284,14 +284,14 @@ const FarmerDashboard = () => {
                 <div key={index} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center space-x-4">
                     <div className={`p-2 rounded-lg ${crop.health === 'Good' ? 'bg-green-100 text-green-600' :
-                        crop.health === 'Warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
+                      crop.health === 'Warning' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
                       }`}>
                       <Leaf className="h-5 w-5" />
                     </div>
                     <div>
                       <p className="font-bold text-gray-900">{crop.crop}</p>
                       <p className={`text-xs font-medium ${crop.health === 'Good' ? 'text-green-600' :
-                          crop.health === 'Warning' ? 'text-yellow-600' : 'text-red-600'
+                        crop.health === 'Warning' ? 'text-yellow-600' : 'text-red-600'
                         }`}>
                         {crop.health} • {crop.issues} issues
                       </p>
@@ -300,7 +300,7 @@ const FarmerDashboard = () => {
                   <div className="w-24 bg-gray-100 rounded-full h-2.5 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-1000 ${crop.progress > 80 ? 'bg-green-500' :
-                          crop.progress > 60 ? 'bg-yellow-500' : 'bg-red-500'
+                        crop.progress > 60 ? 'bg-yellow-500' : 'bg-red-500'
                         }`}
                       style={{ width: `${crop.progress}%` }}
                     ></div>

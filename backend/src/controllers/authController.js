@@ -1,164 +1,156 @@
-import User from "../models/User.js";
-import chalk from "chalk";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 
-export const registerUser = async (req, res) => {
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
+
+// 1. REGISTER
+export const register = async (req, res) => {
+  console.log("📝 Register Request:", req.body); // Debug Log
   try {
-    console.log("🟢 Register request received:", req.body);
-
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    const userExists = await User.findOne({ where: { email } });
+    if (userExists) {
+      console.log("❌ User already exists:", email);
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      console.log("⚠️ Email already registered:", email);
-      return res.status(400).json({ success: false, message: "Email already registered" });
-    }
-
-    // Create user - password hashing will be handled by the model hook
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: role || "farmer",
-    });
-
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "30d" });
-
-    console.log("✅ User registered successfully:", user.email);
+    const user = await User.create({ name, email, password, role });
+    console.log("✅ User Created:", user.id);
 
     res.status(201).json({
       success: true,
-      token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      token: generateToken(user.id),
+      user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
-    console.error("🔥 Register error:", error);
-    res.status(500).json({ success: false, message: "Server error during registration" });
+    console.error("❌ Register Error:", error);
+    res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
-console.log(chalk.green("✅ User registered successfully"));
 
-export const loginUser = async (req, res) => {
+// 2. LOGIN
+export const login = async (req, res) => {
+  console.log("🔑 Login Request:", req.body.email); // Debug Log
   try {
-    console.log("🟢 Login attempt received:", req.body);
-
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Email and password required" });
-    }
 
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid credentials (user not found)" });
+      console.log("❌ User not found");
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    console.log("🔒 Comparing passwords...");
-    // Using the model's comparePassword method
+    // Check if user is Google-only
+    if (!user.password) {
+      console.log("⚠️ Google user tried to login with password");
+      return res.status(400).json({ message: 'Please login with Google' });
+    }
+
     const isMatch = await user.comparePassword(password);
-    console.log("🔑 Password match:", isMatch);
-
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Invalid credentials (wrong password)" });
+      console.log("❌ Password mismatch");
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "30d" });
-
-    console.log("✅ Login success for:", user.email);
-
-    res.status(200).json({
+    console.log("✅ Login Successful");
+    res.json({
       success: true,
-      token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      token: generateToken(user.id),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profile: user.profile
+      }
     });
   } catch (error) {
-    console.error("🔥 Login error:", error);
-    res.status(500).json({ success: false, message: "Server error during login", error: error.message });
+    console.error("❌ Login Error:", error);
+    res.status(500).json({ message: 'Server error' });
   }
+};
+
+// 3. GOOGLE LOGIN
+export const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    console.log("🌐 Google Login Attempt");
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const { name, email, picture, sub: googleId } = ticket.getPayload();
+    console.log("✅ Verified Google User:", email);
+
+    let user = await User.findOne({ where: { email } });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = googleId;
+        if (!user.profile) user.profile = picture;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        profile: picture,
+        role: 'farmer',
+        password: null // No password
+      });
+    }
+
+    res.json({
+      success: true,
+      token: generateToken(user.id),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profile: user.profile
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Google Auth Error:', error.message);
+    res.status(400).json({ success: false, message: 'Google authentication failed' });
+  }
+};
+
+// ... Include getMe, updateProfile, etc. from previous steps
+export const getMe = async (req, res) => {
+  const user = await User.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
+  if (user) res.json({ success: true, user });
+  else res.status(404).json({ message: 'User not found' });
 };
 
 export const updateProfile = async (req, res) => {
   try {
-    console.log("🟢 Update profile request received:", req.body);
-
-    const { name, email, currentPassword, newPassword } = req.body;
-    const userId = req.user.id;
-
-    // Find user
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+    const user = await User.findByPk(req.user.id);
+    if (user) {
+      const { name, phone, location, bio } = req.body;
+      if(name) user.name = name;
+      if(phone) user.phone = phone;
+      if(location) user.location = location;
+      if(bio) user.bio = bio;
+      await user.save();
+      res.json({ success: true, user });
+    } else {
+      res.status(404).json({ message: 'User not found' });
     }
-
-    // Update name if provided
-    if (name) {
-      user.name = name;
-    }
-
-    // Update email if provided (and check if it's not already taken)
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(400).json({ success: false, message: "Email already registered" });
-      }
-      user.email = email;
-    }
-
-    // Update password if provided
-    if (newPassword) {
-      if (!currentPassword) {
-        return res.status(400).json({ success: false, message: "Current password is required to change password" });
-      }
-      
-      // Verify current password
-      const isMatch = await user.comparePassword(currentPassword);
-      if (!isMatch) {
-        return res.status(400).json({ success: false, message: "Current password is incorrect" });
-      }
-      
-      user.password = newPassword; // Will be hashed by the model hook
-    }
-
-    // Save updated user
-    await user.save();
-
-    console.log("✅ Profile updated successfully for:", user.email);
-
-    res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    });
-  } catch (error) {
-    console.error("🔥 Update profile error:", error);
-    res.status(500).json({ success: false, message: "Server error during profile update" });
-  }
+  } catch(e) { res.status(500).json({message: e.message}) }
 };
 
-export const updatePreferences = async (req, res) => {
-  try {
-    console.log("🟢 Update preferences request received:", req.body);
-
-    const { darkMode, language } = req.body;
-    const userId = req.user.id;
-
-    // In a real app, you would store these preferences in the database
-    // For now, we'll just return success as the frontend will handle these settings
-    console.log("✅ Preferences updated successfully for user:", userId);
-
-    res.status(200).json({
-      success: true,
-      message: "Preferences updated successfully",
-      preferences: { darkMode, language }
-    });
-  } catch (error) {
-    console.error("🔥 Update preferences error:", error);
-    res.status(500).json({ success: false, message: "Server error during preferences update" });
-  }
-};
+export const logout = (req, res) => res.json({ success: true });
+export const updatePreferences = (req, res) => res.json({ success: true });

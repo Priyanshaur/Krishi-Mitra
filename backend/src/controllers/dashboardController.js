@@ -1,3 +1,4 @@
+import { Op, Sequelize } from 'sequelize';
 import MarketItem from '../models/MarketItem.js';
 import Diagnosis from '../models/Diagnose.js';
 import Order from '../models/Order.js';
@@ -13,52 +14,55 @@ export const getFarmerStats = async (req, res) => {
 
     console.log('Fetching farmer stats for user:', userId);
 
-    // Get active listings count
-    const activeListings = await MarketItem.countDocuments({
-      sellerId: userId,
-      status: 'active'
+    // 1. Get active listings count
+    const activeListings = await MarketItem.count({
+      where: {
+        sellerId: userId,
+        status: 'active'
+      }
     });
 
-    // Get diagnoses this month
-    const diagnosesThisMonth = await Diagnosis.countDocuments({
-      userId: userId,
-      createdAt: { $gte: startOfMonth }
+    // 2. Get diagnoses this month
+    const diagnosesThisMonth = await Diagnosis.count({
+      where: {
+        userId: userId,
+        createdAt: { [Op.gte]: startOfMonth }
+      }
     });
 
-    // Calculate total revenue from orders (if orders exist)
+    // 3. Calculate total revenue
     let totalRevenue = 0;
     try {
-      const revenueData = await Order.aggregate([
-        {
-          $match: {
-            sellerId: userId,
-            paymentStatus: 'paid'
-          }
+      // Try fetching from Orders table first
+      const revenueData = await Order.findAll({
+        attributes: [
+          [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalRevenue']
+        ],
+        where: {
+          sellerId: userId,
+          paymentStatus: 'paid'
         },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: '$totalAmount' }
-          }
-        }
-      ]);
-      totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+        raw: true
+      });
+
+      if (revenueData && revenueData[0] && revenueData[0].totalRevenue) {
+        totalRevenue = parseFloat(revenueData[0].totalRevenue);
+      } else {
+        totalRevenue = 0;
+      }
     } catch (error) {
-      console.log('Revenue calculation skipped:', error.message);
-      // If orders collection doesn't exist or has issues, use market items as fallback
-      const marketItems = await MarketItem.find({ sellerId: userId });
-      totalRevenue = marketItems.reduce((total, item) => {
-        return total + (item.price * item.quantity * 0.3); // Estimate 30% sold
-      }, 0);
+      console.log('Revenue calculation error:', error.message);
     }
 
-    // Get pending alerts (items with low quantity or not active)
-    const pendingAlerts = await MarketItem.countDocuments({
-      sellerId: userId,
-      $or: [
-        { quantity: { $lt: 10 } }, // Low quantity
-        { status: { $ne: 'active' } } // Not active
-      ]
+    // 4. Get pending alerts
+    const pendingAlerts = await MarketItem.count({
+      where: {
+        sellerId: userId,
+        [Op.or]: [
+          { quantity: { [Op.lt]: 10 } },
+          { status: { [Op.ne]: 'active' } }
+        ]
+      }
     });
 
     res.status(200).json({
@@ -84,59 +88,57 @@ export const getBuyerStats = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get active orders count
-    const activeOrders = await Order.countDocuments({
-      buyerId: userId,
-      status: { $in: ['pending', 'confirmed', 'shipped'] }
+    // 1. Get active orders count
+    const activeOrders = await Order.count({
+      where: {
+        buyerId: userId,
+        status: { [Op.in]: ['pending', 'confirmed', 'shipped'] }
+      }
     });
 
-    // Calculate total spent
+    // 2. Calculate total spent & other stats
     let totalSpent = 0;
     let favoriteFarmers = 0;
     let pendingDeliveries = 0;
 
-    try {
-      const spendingData = await Order.aggregate([
-        {
-          $match: {
-            buyerId: userId,
-            paymentStatus: 'paid'
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalSpent: { $sum: '$totalAmount' }
-          }
-        }
-      ]);
-
-      totalSpent = spendingData.length > 0 ? spendingData[0].totalSpent : 0;
-
-      // Get unique farmers purchased from
-      favoriteFarmers = await Order.distinct('sellerId', {
-        buyerId: userId
-      });
-
-      // Get pending deliveries
-      pendingDeliveries = await Order.countDocuments({
+    const spendingData = await Order.findAll({
+      attributes: [
+        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalSpent']
+      ],
+      where: {
         buyerId: userId,
-        status: { $in: ['confirmed', 'shipped'] }
-      });
-    } catch (error) {
-      console.log('Order-based stats skipped, using fallback');
-      // Fallback if orders don't exist
-      totalSpent = Math.floor(Math.random() * 20000) + 5000;
-      favoriteFarmers = Math.floor(Math.random() * 5) + 3;
-      pendingDeliveries = Math.floor(Math.random() * 3) + 1;
+        paymentStatus: 'paid'
+      },
+      raw: true
+    });
+
+    if (spendingData && spendingData[0] && spendingData[0].totalSpent) {
+      totalSpent = parseFloat(spendingData[0].totalSpent);
     }
+
+    // Count unique sellers (favorite farmers)
+    const uniqueFarmers = await Order.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('sellerId')), 'sellerId']
+      ],
+      where: { buyerId: userId }
+    });
+    favoriteFarmers = uniqueFarmers.length;
+
+    // Count pending deliveries
+    pendingDeliveries = await Order.count({
+      where: {
+        buyerId: userId,
+        status: { [Op.in]: ['confirmed', 'shipped'] }
+      }
+    });
 
     res.status(200).json({
       success: true,
       data: {
         activeOrders,
         totalSpent,
-        favoriteFarmers: Array.isArray(favoriteFarmers) ? favoriteFarmers.length : favoriteFarmers,
+        favoriteFarmers,
         pendingDeliveries
       }
     });
@@ -154,55 +156,62 @@ export const getRecentActivity = async (req, res) => {
   try {
     const userId = req.user.id;
     const userRole = req.user.role;
-
     let activity = [];
 
     if (userRole === 'farmer') {
-      // Get recent diagnoses
-      const recentDiagnoses = await Diagnosis.find({ userId: userId })
-        .sort({ createdAt: -1 })
-        .limit(3)
-        .select('cropType prediction createdAt');
+      // Fetch recent diagnoses
+      const recentDiagnoses = await Diagnosis.findAll({
+        where: { userId: userId },
+        order: [['createdAt', 'DESC']],
+        limit: 3
+      });
 
-      // Get recent market items
-      const recentListings = await MarketItem.find({ sellerId: userId })
-        .sort({ createdAt: -1 })
-        .limit(2)
-        .select('title createdAt status');
+      // Fetch recent listings
+      const recentListings = await MarketItem.findAll({
+        where: { sellerId: userId },
+        order: [['createdAt', 'DESC']],
+        limit: 2
+      });
 
       activity = [
-        ...recentDiagnoses.map(diagnosis => ({
+        ...recentDiagnoses.map(d => ({
           type: 'diagnosis',
-          message: `${diagnosis.cropType} - ${diagnosis.prediction?.disease || 'Analyzed'}`,
-          time: diagnosis.createdAt,
+          // ✅ FIXED: Using underscore field name
+          message: `${d.cropType} - ${d.prediction_disease || 'Analyzed'}`,
+          time: d.createdAt,
           status: 'completed'
         })),
-        ...recentListings.map(listing => ({
+        ...recentListings.map(l => ({
           type: 'sale',
-          message: `Listed: ${listing.title}`,
-          time: listing.createdAt,
-          status: listing.status === 'active' ? 'completed' : 'pending'
+          message: `Listed: ${l.title}`,
+          time: l.createdAt,
+          status: l.status === 'active' ? 'completed' : 'pending'
         }))
       ];
     } else {
-      // Buyer activity (recent orders or market views)
-      const recentListings = await MarketItem.find()
-        .populate('sellerId', 'name')
-        .sort({ createdAt: -1 })
-        .limit(3)
-        .select('title createdAt sellerId price');
+      // Buyer Activity: View recent market items or orders
+      const recentListings = await MarketItem.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: 3,
+        include: [{
+          model: User,
+          as: 'seller',
+          attributes: ['name']
+        }],
+        attributes: ['title', 'createdAt', 'price', 'sellerId']
+      });
 
       activity = recentListings.map(item => ({
         type: 'view',
-        message: `Viewed: ${item.title} from ${item.sellerId.name}`,
+        message: `Viewed: ${item.title} from ${item.seller?.name || 'Unknown Farmer'}`,
         time: item.createdAt,
         status: 'completed'
       }));
     }
 
-    // Sort by time and format
+    // Sort combined activity
     activity.sort((a, b) => new Date(b.time) - new Date(a.time));
-    
+
     const formattedActivity = activity.map(item => ({
       ...item,
       time: formatTimeAgo(item.time)
@@ -226,81 +235,59 @@ export const getCropHealth = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const cropHealth = await Diagnosis.aggregate([
-      {
-        $match: { userId: userId }
-      },
-      {
-        $group: {
-          _id: '$cropType',
-          totalDiagnoses: { $sum: 1 },
-          criticalCount: {
-            $sum: { $cond: [{ $eq: ['$severity', 'critical'] }, 1, 0] }
-          },
-          highCount: {
-            $sum: { $cond: [{ $eq: ['$severity', 'high'] }, 1, 0] }
-          },
-          lastDiagnosis: { $max: '$createdAt' }
-        }
-      },
-      {
-        $project: {
-          crop: '$_id',
-          totalDiagnoses: 1,
-          criticalCount: 1,
-          highCount: 1,
-          lastDiagnosis: 1,
-          healthScore: {
-            $subtract: [
-              100,
-              {
-                $multiply: [
-                  {
-                    $add: [
-                      { $multiply: ['$criticalCount', 5] },
-                      { $multiply: ['$highCount', 3] }
-                    ]
-                  },
-                  10
-                ]
-              }
-            ]
-          }
-        }
-      },
-      {
-        $sort: { lastDiagnosis: -1 }
-      },
-      {
-        $limit: 5
-      }
-    ]);
+    // Fetch all diagnoses for user
+    const diagnoses = await Diagnosis.findAll({
+      where: { userId: userId },
+      attributes: ['cropType', 'severity', 'createdAt', 'prediction_confidence'],
+      order: [['createdAt', 'DESC']]
+    });
 
-    const formattedHealth = cropHealth.map(crop => {
-      const healthScore = Math.max(0, Math.min(100, crop.healthScore || 85));
+    // Group by crop
+    const cropGroups = {};
+    diagnoses.forEach(d => {
+      if (!cropGroups[d.cropType]) {
+        cropGroups[d.cropType] = {
+          total: 0,
+          critical: 0,
+          high: 0,
+          confidenceSum: 0,
+          lastDiagnosis: d.createdAt
+        };
+      }
+      cropGroups[d.cropType].total++;
+      cropGroups[d.cropType].confidenceSum += (d.prediction_confidence || 0);
+
+      if (d.severity === 'critical') cropGroups[d.cropType].critical++;
+      if (d.severity === 'high') cropGroups[d.cropType].high++;
+    });
+
+    // Calculate scores
+    const formattedHealth = Object.keys(cropGroups).map(cropName => {
+      const data = cropGroups[cropName];
+      const issuesScore = (data.critical * 5) + (data.high * 3);
+      // Base health on issues, clamped between 0 and 100
+      const healthScore = Math.max(0, Math.min(100, 100 - (issuesScore * 10)));
+
       let healthStatus = 'Good';
-      let issues = 0;
+      let issuesCount = 0;
 
       if (healthScore < 40) {
         healthStatus = 'Critical';
-        issues = crop.criticalCount + crop.highCount;
+        issuesCount = data.critical + data.high;
       } else if (healthScore < 70) {
         healthStatus = 'Warning';
-        issues = crop.highCount;
-      } else {
-        healthStatus = 'Good';
-        issues = 0;
+        issuesCount = data.high;
       }
 
       return {
-        crop: crop.crop || 'Unknown Crop',
+        crop: cropName,
         health: healthStatus,
-        issues: issues,
+        issues: issuesCount,
         progress: healthScore
       };
-    });
+    }).slice(0, 5);
 
-    // If no diagnoses, return default crops
+    // Default data if empty
     if (formattedHealth.length === 0) {
       formattedHealth.push(
         { crop: 'Tomatoes', health: 'Good', issues: 0, progress: 90 },
@@ -325,56 +312,44 @@ export const getCropHealth = async (req, res) => {
 // GET RECOMMENDED FARMERS
 export const getRecommendedFarmers = async (req, res) => {
   try {
-    const farmers = await MarketItem.aggregate([
-      {
-        $group: {
-          _id: '$sellerId',
-          itemCount: { $sum: 1 },
-          categories: { $addToSet: '$category' },
-          totalQuantity: { $sum: '$quantity' },
-          avgPrice: { $avg: '$price' }
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'farmerInfo'
-        }
-      },
-      {
-        $unwind: '$farmerInfo'
-      },
-      {
-        $project: {
-          name: '$farmerInfo.name',
-          rating: { $ifNull: ['$farmerInfo.rating', 4.5] },
-          itemCount: 1,
-          specialties: { $slice: ['$categories', 2] },
-          totalQuantity: 1,
-          deliveryTime: { 
-            $switch: {
-              branches: [
-                { case: { $gte: ['$totalQuantity', 1000 ], then: '3-4 days' } },
-                { case: { $gte: ['$totalQuantity', 500 ], then: '2-3 days' } }
-              ],
-              default: '1-2 days'
-            }
-          }
-        }
-      },
-      {
-        $sort: { itemCount: -1, rating: -1 }
-      },
-      {
-        $limit: 6
-      }
-    ]);
+    // Basic aggregation for MySQL
+    const farmersData = await MarketItem.findAll({
+      attributes: [
+        'sellerId',
+        [Sequelize.fn('COUNT', Sequelize.col('MarketItem.id')), 'itemCount'],
+        [Sequelize.fn('SUM', Sequelize.col('quantity')), 'totalQuantity']
+      ],
+      group: ['sellerId'],
+      include: [{
+        model: User,
+        as: 'seller',
+        attributes: ['name', 'rating']
+      }],
+      order: [[Sequelize.literal('itemCount'), 'DESC']],
+      limit: 6
+    });
+
+    const formattedFarmers = farmersData.map(item => {
+      const seller = item.seller || {};
+      const totalQty = parseInt(item.getDataValue('totalQuantity') || 0);
+
+      let deliveryTime = '1-2 days';
+      if (totalQty >= 1000) deliveryTime = '3-4 days';
+      else if (totalQty >= 500) deliveryTime = '2-3 days';
+
+      return {
+        name: seller.name || 'Unknown Farmer',
+        rating: seller.rating || 4.5,
+        itemCount: item.getDataValue('itemCount'),
+        specialties: ['General Farming'],
+        totalQuantity: totalQty,
+        deliveryTime
+      };
+    });
 
     res.status(200).json({
       success: true,
-      data: farmers
+      data: formattedFarmers
     });
   } catch (error) {
     console.error('Get Recommended Farmers Error:', error);
@@ -385,7 +360,6 @@ export const getRecommendedFarmers = async (req, res) => {
   }
 };
 
-// Helper function to format time ago
 function formatTimeAgo(date) {
   const now = new Date();
   const diffMs = now - new Date(date);

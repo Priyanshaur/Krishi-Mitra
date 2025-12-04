@@ -3,11 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile, updatePreferences } from '../../store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import { useTheme } from '../../context/ThemeContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Settings = () => {
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector(state => state.auth);
   const { t, i18n } = useTranslation();
+  const { darkMode, toggleTheme } = useTheme();
 
   // Profile state
   const [profileData, setProfileData] = useState({
@@ -19,9 +23,11 @@ const Settings = () => {
 
   // Preferences state
   const [preferences, setPreferences] = useState({
-    darkMode: localStorage.getItem('darkMode') === 'true',
     language: i18n.language || 'en'
   });
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Update preferences state when i18n language changes
   useEffect(() => {
@@ -42,8 +48,14 @@ const Settings = () => {
   // Handle preferences changes
   const handlePreferencesChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === 'darkMode') {
+      toggleTheme();
+      return;
+    }
+
     const newValue = type === 'checkbox' ? checked : value;
-    
+
     setPreferences({
       ...preferences,
       [name]: newValue
@@ -53,7 +65,7 @@ const Settings = () => {
   // Handle profile update
   const handleProfileUpdate = (e) => {
     e.preventDefault();
-    
+
     // Only send fields that have values
     const dataToSend = {};
     if (profileData.name && profileData.name !== user.name) {
@@ -66,7 +78,7 @@ const Settings = () => {
       dataToSend.currentPassword = profileData.currentPassword;
       dataToSend.newPassword = profileData.newPassword;
     }
-    
+
     if (Object.keys(dataToSend).length > 0) {
       dispatch(updateProfile(dataToSend));
     }
@@ -74,104 +86,109 @@ const Settings = () => {
 
   // Handle preferences update
   const handlePreferencesUpdate = () => {
-    // Update dark mode
-    if (preferences.darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
-    }
-    
     // Update language using i18n
     i18n.changeLanguage(preferences.language);
-    
+
     // Dispatch to backend
     dispatch(updatePreferences({
-      darkMode: preferences.darkMode,
+      darkMode: darkMode,
       language: preferences.language
     }));
   };
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('settings.title')}</h1>
-      
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('settings.title')}</h1>
+
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Profile Settings */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings.profile.title')}</h2>
-          
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t('settings.profile.title')}</h2>
+
           <form onSubmit={handleProfileUpdate} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('settings.profile.name')}
               </label>
-              <input
+              <Input
                 type="text"
                 id="name"
                 name="name"
                 value={profileData.name}
                 onChange={handleProfileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder={t('settings.profile.namePlaceholder')}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('settings.profile.email')}
               </label>
-              <input
+              <Input
                 type="email"
                 id="email"
                 name="email"
                 value={profileData.email}
                 onChange={handleProfileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder={t('settings.profile.emailPlaceholder')}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('settings.profile.currentPassword')}
               </label>
-              <input
-                type="password"
-                id="currentPassword"
-                name="currentPassword"
-                value={profileData.currentPassword}
-                onChange={handleProfileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder={t('settings.profile.currentPasswordPlaceholder')}
-              />
+              <div className="relative">
+                <Input
+                  type={showCurrentPassword ? "text" : "password"}
+                  id="currentPassword"
+                  name="currentPassword"
+                  value={profileData.currentPassword}
+                  onChange={handleProfileChange}
+                  placeholder={t('settings.profile.currentPasswordPlaceholder')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
-            
+
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('settings.profile.newPassword')}
               </label>
-              <input
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                value={profileData.newPassword}
-                onChange={handleProfileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder={t('settings.profile.newPasswordPlaceholder')}
-              />
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? "text" : "password"}
+                  id="newPassword"
+                  name="newPassword"
+                  value={profileData.newPassword}
+                  onChange={handleProfileChange}
+                  placeholder={t('settings.profile.newPasswordPlaceholder')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
-            
+
             <div className="pt-4">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading}
                 className="w-full"
               >
@@ -180,23 +197,23 @@ const Settings = () => {
             </div>
           </form>
         </div>
-        
+
         {/* Preferences Settings */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings.preferences.title')}</h2>
-          
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t('settings.preferences.title')}</h2>
+
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">{t('settings.preferences.darkMode')}</h3>
-                  <p className="text-sm text-gray-500">{t('settings.preferences.darkModeDescription')}</p>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">{t('settings.preferences.darkMode')}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.preferences.darkModeDescription')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     name="darkMode"
-                    checked={preferences.darkMode}
+                    checked={darkMode}
                     onChange={handlePreferencesChange}
                     className="sr-only peer"
                   />
@@ -204,9 +221,9 @@ const Settings = () => {
                 </label>
               </div>
             </div>
-            
+
             <div>
-              <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="language" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('settings.preferences.language')}
               </label>
               <select
@@ -214,16 +231,16 @@ const Settings = () => {
                 name="language"
                 value={preferences.language}
                 onChange={handlePreferencesChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               >
                 <option value="en">{t('settings.preferences.english')}</option>
                 <option value="hi">{t('settings.preferences.hindi')}</option>
                 <option value="mr">{t('settings.preferences.marathi')}</option>
               </select>
             </div>
-            
+
             <div className="pt-4">
-              <Button 
+              <Button
                 onClick={handlePreferencesUpdate}
                 disabled={loading}
                 className="w-full"
