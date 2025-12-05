@@ -16,7 +16,6 @@ const Diagnosis = sequelize.define('Diagnosis', {
   imageUrl: { type: DataTypes.STRING, allowNull: false },
   cropType: { type: DataTypes.STRING, allowNull: false },
   
-  // ✅ FIX: Use underscores to match database
   prediction_disease: { type: DataTypes.STRING },
   prediction_confidence: { type: DataTypes.FLOAT },
   prediction_scientificName: { type: DataTypes.STRING },

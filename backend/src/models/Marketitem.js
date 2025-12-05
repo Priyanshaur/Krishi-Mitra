@@ -16,19 +16,28 @@ const MarketItem = sequelize.define("MarketItem", {
     title: { type: DataTypes.STRING, allowNull: false },
     description: DataTypes.TEXT,
     price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    unit: { type: DataTypes.STRING, defaultValue: 'kg' },
+    unit: { 
+      type: DataTypes.ENUM('kg','quintal','ton','bag','piece'), 
+      defaultValue: 'kg' 
+    },
     quantity: { type: DataTypes.INTEGER, allowNull: false },
-    category: { type: DataTypes.STRING, allowNull: false },
-    qualityGrade: { type: DataTypes.STRING, defaultValue: 'standard' },
+    category: { 
+      type: DataTypes.ENUM('cereals','pulses','vegetables','fruits','spices','others'), 
+      allowNull: false 
+    },
+    qualityGrade: { 
+      type: DataTypes.ENUM('premium','grade-a','grade-b','standard'), 
+      defaultValue: 'standard' 
+    },
     organic: { type: DataTypes.BOOLEAN, defaultValue: false },
     harvestDate: DataTypes.DATE,
-    status: { type: DataTypes.STRING, defaultValue: 'active' },
-    
-    // ✅ FIX: Use underscores to match database
+    status: { 
+      type: DataTypes.ENUM('active','sold','inactive'), 
+      defaultValue: 'active' 
+    },
     location_city: { type: DataTypes.STRING },
     location_state: { type: DataTypes.STRING },
     location_pincode: { type: DataTypes.STRING },
-    
     tags: DataTypes.JSON,
     images: DataTypes.JSON
   },

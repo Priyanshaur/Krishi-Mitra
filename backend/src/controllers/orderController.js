@@ -1,15 +1,32 @@
 import Order from '../models/Order.js';
+import OrderItem from '../models/orderitem.js';
 
 export const createOrder = async (req, res) => {
   try {
+    const { items, ...orderData } = req.body;
+    
+    // 1. Create the main order
     const order = await Order.create({
-      ...req.body,
-      buyerId: req.user.id
+      ...orderData,
+      buyerId: req.user.id,
+      paymentStatus: 'pending' // Default
     });
+    
+    // 2. Create Order Items if provided
+    if (items && items.length > 0) {
+        const orderItemsData = items.map(item => ({
+            orderId: order.id,
+            itemId: item.marketItemId,
+            quantity: item.quantity,
+            price: item.price
+        }));
+        await OrderItem.bulkCreate(orderItemsData);
+    }
     
     res.status(201).json({
       success: true,
-      data: order
+      data: order,
+      message: "Order placed successfully"
     });
   } catch (error) {
     console.error('Error creating order:', error);

@@ -15,7 +15,7 @@ const User = sequelize.define("User", {
     unique: true,
     validate: { isEmail: true }
   },
-  password: { type: DataTypes.STRING, allowNull: true }, // Can be null for Google
+  password: { type: DataTypes.STRING, allowNull: true },
   googleId: { type: DataTypes.STRING, allowNull: true, unique: true },
   role: { type: DataTypes.STRING, defaultValue: "farmer" },
   profile: { type: DataTypes.STRING },
@@ -28,7 +28,6 @@ const User = sequelize.define("User", {
   timestamps: true,
 });
 
-// ✅ Hooks to Hash Password
 User.addHook('beforeCreate', async (user) => {
   if (user.password) { 
     const salt = await bcrypt.genSalt(10);
@@ -43,9 +42,8 @@ User.addHook('beforeUpdate', async (user) => {
   }
 });
 
-// ✅ Method to Check Password
 User.prototype.comparePassword = async function (enteredPassword) {
-  if (!this.password) return false; // Google users have no password
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

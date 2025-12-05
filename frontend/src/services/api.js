@@ -167,4 +167,24 @@ export const chatAPI = {
     api.post('/chat', { message }).then(res => res.data),
 }
 
+// ... existing imports
+
+// Add this Order API section
+export const orderAPI = {
+  // Create a new order
+  createOrder: (orderData) => 
+    api.post('/orders', orderData).then(res => res.data),
+
+  // Get buyer's orders
+  getMyOrders: () => 
+    api.get('/orders/my').then(res => res.data),
+    
+  // Get single order
+  getOrder: (id) => 
+    api.get(`/orders/${id}`).then(res => res.data),
+}
+
+// ... rest of the file (authAPI, marketAPI, etc.)
+// Make sure to export orderAPI if you are doing named exports
+
 export default api
