@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice'
 import marketReducer from './slices/marketSlice'
 import diagnosisReducer from './slices/diagnosisSlice'
 import farmerOrderReducer from './slices/farmerOrderSlice'
+import buyerOrderReducer from './slices/buyerOrderSlice'
 import notificationReducer from './slices/notificationSlice';
 
 // Custom middleware to log actions
@@ -19,6 +20,7 @@ export const store = configureStore({
     market: marketReducer,
     diagnosis: diagnosisReducer,
     farmerOrders: farmerOrderReducer,
+    buyerOrders: buyerOrderReducer,
     notifications: notificationReducer,
   },
   middleware: (getDefaultMiddleware) =>

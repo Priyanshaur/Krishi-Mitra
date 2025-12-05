@@ -65,9 +65,9 @@ const HomePage = () => {
   }, [features.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 dark:from-gray-900 dark:via-gray-800 dark:to-green-900 transition-colors duration-300">
       {/* NAVBAR */}
-      <nav className="fixed w-full bg-white/90 backdrop-blur-md z-50 border-b border-green-100 shadow-sm">
+      <nav className="fixed w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-50 border-b border-green-100 dark:border-green-900 shadow-sm transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -80,10 +80,10 @@ const HomePage = () => {
             </div>
 
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-green-600 font-medium transition-colors">{t('home.nav.features')}</a>
-              <a href="#strategy" className="text-gray-600 hover:text-green-600 font-medium transition-colors">{t('home.nav.strategy')}</a>
-              <a href="#methodology" className="text-gray-600 hover:text-green-600 font-medium transition-colors">{t('home.nav.methodology')}</a>
-              <a href="#future" className="text-gray-600 hover:text-green-600 font-medium transition-colors">{t('home.nav.future')}</a>
+              <a href="#features" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors">{t('home.nav.features')}</a>
+              <a href="#strategy" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors">{t('home.nav.strategy')}</a>
+              <a href="#methodology" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors">{t('home.nav.methodology')}</a>
+              <a href="#future" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors">{t('home.nav.future')}</a>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -149,7 +149,7 @@ const HomePage = () => {
                 <span className="absolute bottom-2 left-0 w-full h-3 bg-green-200/50 -z-0 transform -rotate-1 rounded-full"></span>
               </span>
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
+            <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-lg">
               {t('home.heroSub')}
             </p>
 
@@ -181,17 +181,17 @@ const HomePage = () => {
               )}
             </div>
 
-            <div className="pt-8 border-t border-gray-100">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">{t('home.heroBenefitsTitle')}</h3>
+            <div className="pt-8 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-bold text-green-600 dark:text-green-400 uppercase tracking-wider mb-4">{t('home.heroBenefitsTitle')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {heroBenefits.map((benefit, index) => {
                   const BenefitIcon = iconMap[benefit.icon] || Leaf;
                   return (
-                    <div key={index} className="flex items-center text-gray-700 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-gray-100 shadow-sm">
-                      <div className="bg-green-100 p-2 rounded-lg mr-3">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
+                    <div key={index} className="flex items-center text-gray-900 dark:text-white bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-4 rounded-xl border border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all duration-300">
+                      <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-lg mr-3">
+                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
-                      <span className="font-medium">{benefit.text}</span>
+                      <span className="font-bold">{benefit.text}</span>
                     </div>
                   );
                 })}
@@ -258,11 +258,11 @@ const HomePage = () => {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="py-20 bg-gradient-to-b from-white to-green-50">
+      <section id="features" className="py-20 bg-gradient-to-b from-white to-green-50 dark:from-gray-900 dark:to-green-900/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('home.featuresTitle')}</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t('home.featuresTitle')}</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               {t('home.featuresSubtitle')}
             </p>
           </div>
@@ -270,7 +270,7 @@ const HomePage = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${currentFeature === index ? "border-green-500" : "border-transparent"
+                className={`bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${currentFeature === index ? "border-green-500" : "border-transparent dark:border-gray-700"
                   } group`}
               >
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -279,10 +279,10 @@ const HomePage = () => {
                     return <FeatureIcon className="h-8 w-8" />;
                   })()}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 mb-4">{feature.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">{feature.description}</p>
                 <div className="mt-4">
-                  <div className="inline-flex items-center text-green-600 font-medium group-hover:translate-x-1 transition-transform duration-300">
+                  <div className="inline-flex items-center text-green-600 dark:text-green-400 font-medium group-hover:translate-x-1 transition-transform duration-300">
                     Learn more
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </div>
@@ -294,20 +294,20 @@ const HomePage = () => {
       </section>
 
       {/* STRATEGY */}
-      <section id="strategy" className="py-20 bg-white">
+      <section id="strategy" className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">{strategyData?.title}</h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{strategyData?.title}</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
               {strategyData?.intro}
             </p>
           </div>
           <div className="grid gap-8 lg:grid-cols-3">
             {pillars.map((pillar, index) => {
               const gradientClasses = [
-                "bg-gradient-to-b from-green-50 to-white border border-green-100",
-                "bg-gradient-to-b from-yellow-50 to-white border border-yellow-100",
-                "bg-gradient-to-b from-blue-50 to-white border border-blue-100"
+                "bg-gradient-to-b from-green-100 to-white dark:from-green-900/40 dark:to-gray-800 border border-green-200 dark:border-green-800",
+                "bg-gradient-to-b from-yellow-100 to-white dark:from-yellow-900/40 dark:to-gray-800 border border-yellow-200 dark:border-yellow-800",
+                "bg-gradient-to-b from-blue-100 to-white dark:from-blue-900/40 dark:to-gray-800 border border-blue-200 dark:border-blue-800"
               ];
               const iconComponents = [Shield, Zap, Globe];
               const IconComponent = iconComponents[index % iconComponents.length];
@@ -317,13 +317,13 @@ const HomePage = () => {
                   <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300">
                     <IconComponent className="h-7 w-7" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{pillar.title}</h3>
-                  <ul className="space-y-4 text-left text-gray-600">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{pillar.title}</h3>
+                  <ul className="space-y-4 text-left text-gray-700 dark:text-gray-200">
                     {pillar.bullets?.map((bullet, bulletIndex) => (
                       <li key={bulletIndex} className="flex items-start">
                         <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                         <div>
-                          <span className="font-semibold text-gray-800">{bullet.emphasis}:</span> {bullet.text}
+                          <span className="font-bold text-gray-900 dark:text-white">{bullet.emphasis}:</span> {bullet.text}
                         </div>
                       </li>
                     ))}
@@ -336,11 +336,11 @@ const HomePage = () => {
       </section>
 
       {/* METHODOLOGY */}
-      <section id="methodology" className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <section id="methodology" className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-green-900/20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">{methodologyData?.title}</h2>
-            <p className="text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{methodologyData?.title}</h2>
+            <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
               {methodologyData?.intro}
             </p>
           </div>
@@ -356,9 +356,9 @@ const HomePage = () => {
                     <span className="text-xl font-bold">{index + 1}</span>
                   </div>
 
-                  <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-6 hover:shadow-md transition-all duration-300">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{phase.label}</h3>
-                    <p className="text-gray-600">{phase.description}</p>
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm px-8 py-6 hover:shadow-md transition-all duration-300">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{phase.label}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{phase.description}</p>
                   </div>
                 </li>
               ))}
@@ -394,13 +394,13 @@ const HomePage = () => {
       </section>
 
       {/* CTA SECTION */}
-      <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
+      <section className="py-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-green-900/20">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 md:p-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Ready to Transform Your Farming Experience?
             </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
               Join thousands of farmers already using Krishi Mitra to increase their yields and income.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

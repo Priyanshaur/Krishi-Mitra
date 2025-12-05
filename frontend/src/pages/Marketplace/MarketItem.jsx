@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { MapPin, Star, Leaf, Calendar, Phone, Mail, ArrowLeft, Heart, ShoppingBag } from 'lucide-react'
+import { MapPin, Star, Leaf, Calendar, Phone, Mail, ArrowLeft, Heart, ShoppingBag, Minus, Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { fetchMarketItem } from '../../store/slices/marketSlice'
@@ -16,6 +16,7 @@ const MarketItem = () => {
   const { currentItem: item, loading, error } = useSelector(state => state.market)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [ordering, setOrdering] = useState(false)
+  const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
     if (id) {
@@ -42,6 +43,20 @@ const MarketItem = () => {
     setIsWishlisted(!isWishlisted)
   }
 
+  const handleQuantityChange = (type) => {
+    if (type === 'increase') {
+      if (quantity < item.quantity) {
+        setQuantity(prev => prev + 1)
+      } else {
+        toast.error(`Only ${item.quantity} ${item.unit} available`)
+      }
+    } else {
+      if (quantity > 1) {
+        setQuantity(prev => prev - 1)
+      }
+    }
+  }
+
   const handlePlaceOrder = async () => {
     if (!user) {
       toast.error('Please login to place an order')
@@ -54,18 +69,18 @@ const MarketItem = () => {
       return
     }
 
-    if (window.confirm(`Confirm order for ${item.title} at ${formatCurrency(item.price)}?`)) {
+    if (window.confirm(`Confirm order for ${quantity} ${item.unit} of ${item.title} at ${formatCurrency(item.price * quantity)}?`)) {
       try {
         setOrdering(true)
         const orderData = {
           items: [{
             marketItemId: item.id,
-            quantity: 1, // Default to 1 for now
+            quantity: quantity,
             price: item.price,
             title: item.title,
             unit: item.unit
           }],
-          totalAmount: item.price,
+          totalAmount: item.price * quantity,
           sellerId: item.sellerId,
           shippingAddress: user.address || {
             street: '123 Main St',
@@ -225,6 +240,35 @@ const MarketItem = () => {
               </p>
             </div>
 
+            {/* Quantity Selector */}
+            {item.status === 'active' && (
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Select Quantity</h3>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                    <button
+                      onClick={() => handleQuantityChange('decrease')}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-l-lg transition-colors"
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                    </button>
+                    <span className="w-12 text-center font-medium text-gray-900 dark:text-white">{quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange('increase')}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-r-lg transition-colors"
+                      disabled={quantity >= item.quantity}
+                    >
+                      <Plus className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                    </button>
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Total: <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(item.price * quantity)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Additional Details */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -328,7 +372,7 @@ const MarketItem = () => {
           ) : (
             <ShoppingBag className="h-5 w-5 mr-2" />
           )}
-          {item.status === 'active' ? 'Place Order Now' : 'Sold Out'}
+          {item.status === 'active' ? `Place Order (${formatCurrency(item.price * quantity)})` : 'Sold Out'}
         </Button>
         <Button
           variant="secondary"

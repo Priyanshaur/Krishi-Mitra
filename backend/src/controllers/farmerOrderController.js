@@ -8,10 +8,10 @@ export const getFarmerOrders = async (req, res) => {
     const orders = await Order.findAll({
       where: { sellerId: req.user.id },
       include: [
-        { 
-          model: User, 
-          as: 'buyer', 
-          attributes: ['name', 'email'] 
+        {
+          model: User,
+          as: 'buyer',
+          attributes: ['name', 'email']
         },
         {
           model: OrderItem,
@@ -20,20 +20,10 @@ export const getFarmerOrders = async (req, res) => {
       ],
       order: [['createdAt', 'DESC']]
     });
-    
-    // Transform data to match frontend expectations (id -> _id)
-    const formattedOrders = orders.map(order => {
-      const plainOrder = order.toJSON();
-      return {
-        ...plainOrder,
-        _id: plainOrder.id, // Map for frontend compatibility
-        buyerId: plainOrder.buyer // Map 'buyer' association to 'buyerId' prop expected by frontend
-      };
-    });
 
     res.json({
       success: true,
-      data: formattedOrders
+      data: orders
     });
   } catch (error) {
     console.error('Error fetching farmer orders:', error);
@@ -47,34 +37,27 @@ export const getFarmerOrders = async (req, res) => {
 // GET A SPECIFIC ORDER FOR A FARMER
 export const getFarmerOrder = async (req, res) => {
   try {
-    const order = await Order.findOne({ 
-      where: { 
-        id: req.params.id, 
-        sellerId: req.user.id 
+    const order = await Order.findOne({
+      where: {
+        id: req.params.id,
+        sellerId: req.user.id
       },
       include: [
         { model: User, as: 'buyer', attributes: ['name', 'email'] },
         { model: OrderItem, as: 'items' }
       ]
     });
-    
+
     if (!order) {
       return res.status(404).json({
         success: false,
         message: 'Order not found'
       });
     }
-    
-    const plainOrder = order.toJSON();
-    const formattedOrder = {
-      ...plainOrder,
-      _id: plainOrder.id,
-      buyerId: plainOrder.buyer
-    };
 
     res.json({
       success: true,
-      data: formattedOrder
+      data: order
     });
   } catch (error) {
     console.error('Error fetching farmer order:', error);
@@ -89,7 +72,7 @@ export const getFarmerOrder = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    
+
     // Validate status
     const validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
     if (!validStatuses.includes(status)) {
@@ -98,7 +81,7 @@ export const updateOrderStatus = async (req, res) => {
         message: 'Invalid status'
       });
     }
-    
+
     const order = await Order.findOne({
       where: {
         id: req.params.id,
@@ -116,7 +99,7 @@ export const updateOrderStatus = async (req, res) => {
     // Update status
     order.status = status;
     await order.save();
-    
+
     // Refetch with associations to return complete object
     const updatedOrder = await Order.findByPk(order.id, {
       include: [
@@ -124,17 +107,10 @@ export const updateOrderStatus = async (req, res) => {
         { model: OrderItem, as: 'items' }
       ]
     });
-    
-    const plainOrder = updatedOrder.toJSON();
-    const formattedOrder = {
-      ...plainOrder,
-      _id: plainOrder.id,
-      buyerId: plainOrder.buyer
-    };
 
     res.json({
       success: true,
-      data: formattedOrder
+      data: updatedOrder
     });
   } catch (error) {
     console.error('Error updating order status:', error);

@@ -130,6 +130,15 @@ const OrderDetails = () => {
     )
   }
 
+  // Construct shipping address from flattened fields if necessary
+  const shippingAddress = order.shippingAddress || {
+    street: order.shipping_street,
+    city: order.shipping_city,
+    state: order.shipping_state,
+    pincode: order.shipping_pincode,
+    contactNumber: order.shipping_contactNumber
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back Button */}
@@ -149,7 +158,7 @@ const OrderDetails = () => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Order #{order._id.substring(0, 8)}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Order #{order.id?.substring(0, 8)}</h1>
               <div className="flex items-center mt-2">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.status)}`}>
                   {getStatusIcon(order.status)}
@@ -222,11 +231,11 @@ const OrderDetails = () => {
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                 <span className="text-blue-800 dark:text-blue-300 font-bold text-xl">
-                  {order.buyerId?.name?.charAt(0) || 'C'}
+                  {order.buyer?.name?.charAt(0) || 'C'}
                 </span>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{order.buyerId?.name || 'Unknown Customer'}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">{order.buyer?.name || 'Unknown Customer'}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                   Customer since {new Date().getFullYear()}
                 </p>
@@ -245,15 +254,15 @@ const OrderDetails = () => {
             </div>
           </div>
 
-          {order.shippingAddress && (
+          {(shippingAddress.street || shippingAddress.city) && (
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <h3 className="font-medium text-gray-900 dark:text-white mb-3">Delivery Address</h3>
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500 mt-0.5 mr-2" />
                 <div className="text-gray-600 dark:text-gray-400">
-                  <p>{order.shippingAddress.street}</p>
-                  <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</p>
-                  <p className="mt-1">Phone: {order.shippingAddress.contactNumber || 'Not provided'}</p>
+                  <p>{shippingAddress.street}</p>
+                  <p>{shippingAddress.city}, {shippingAddress.state} {shippingAddress.pincode}</p>
+                  <p className="mt-1">Phone: {shippingAddress.contactNumber || 'Not provided'}</p>
                 </div>
               </div>
             </div>
