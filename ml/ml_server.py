@@ -75,6 +75,12 @@ app = FastAPI(lifespan=lifespan)
 # 3. Prediction Endpoint
 @app.post("/predict")
 async def predict(image: UploadFile = File(...), crop_type: str = "tomato"):
+    print(f"DEBUG: Received prediction request for crop_type='{crop_type}'")
+    
+    UNSUPPORTED_CROPS = ["wheat", "rice", "sugarcane", "cotton"]
+    if crop_type.lower() in UNSUPPORTED_CROPS:
+        raise HTTPException(status_code=400, detail=f"Analysis not supported for crop: {crop_type}")
+
     if not model:
         raise HTTPException(status_code=503, detail="Model not loaded")
 

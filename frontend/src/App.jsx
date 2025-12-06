@@ -21,6 +21,7 @@ import BuyerOrderDetails from './pages/Marketplace/BuyerOrderDetails'
 import Diagnose from './pages/Diagnose/Diagnose'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
+import IoTMonitor from './pages/IoT/IoTMonitor'
 
 // Layout
 import Layout from './components/layout/Layout'
@@ -168,6 +169,14 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Diagnose />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/farmer/iot" element={
+            <ProtectedRoute>
+              <Layout>
+                <IoTMonitor />
               </Layout>
             </ProtectedRoute>
           } />

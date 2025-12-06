@@ -10,22 +10,36 @@ export const diagnoseDisease = async (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, message: 'Please upload an image' });
 
     const imageBuffer = fs.readFileSync(req.file.path);
-    const cropType = req.body.cropType || 'tomato';
+    // Remove default 'tomato' to enforce explicit selection
+    const cropType = req.body.cropType;
+
+    if (!cropType) {
+      return res.status(400).json({ success: false, message: 'Please select a crop type' });
+    }
+
+    // List of crops NOT supported by the current model (to avoid hallucinations)
+    const UNSUPPORTED_CROPS = ['wheat', 'rice', 'sugarcane', 'cotton'];
+    if (UNSUPPORTED_CROPS.includes(cropType.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Disease diagnosis for ${cropType} is currently not supported. Our model covers: Apple, Corn, Grape, Potato, Tomato, and more.`
+      });
+    }
 
     // Call ML Service
     const mlResult = await mlService.predictDisease(imageBuffer, cropType);
-    
+
     // ✅ FIX: Save using underscore field names
     const diagnosis = await Diagnosis.create({
       userId: req.user.id,
       imageUrl: `/uploads/${req.file.filename}`,
       cropType: cropType,
-      
+
       prediction_disease: mlResult.disease,
       prediction_confidence: mlResult.confidence,
       prediction_scientificName: mlResult.scientific_name || 'Unknown',
       prediction_commonName: mlResult.common_name || mlResult.disease,
-      
+
       severity: mlResult.confidence > 0.8 ? 'high' : mlResult.confidence > 0.6 ? 'medium' : 'low',
       status: 'processed',
       notes: req.body.notes
