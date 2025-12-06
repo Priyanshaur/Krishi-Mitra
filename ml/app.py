@@ -301,6 +301,14 @@ async def predict(
 ) -> Dict[str, Any]:
 	_ensure_model_loaded()
 
+	print(f"DEBUG: Received prediction request for crop_type='{crop_type}'")
+
+	# List of crops NOT supported by the trained model
+	UNSUPPORTED_CROPS = {"wheat", "rice", "sugarcane", "cotton"}
+	if crop_type.lower() in UNSUPPORTED_CROPS:
+		raise HTTPException(status_code=400, detail=f"Analysis not supported for crop: {crop_type}")
+
+
 	if image.content_type not in {"image/jpeg", "image/png", "image/jpg", "application/octet-stream"}:
 		raise HTTPException(status_code=415, detail="Unsupported file type. Please upload a JPG or PNG image.")
 
