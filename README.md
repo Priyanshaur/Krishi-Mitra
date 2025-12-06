@@ -1,5 +1,11 @@
 # Krishi Mitra
 
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=react,vite,tailwind,redux,nodejs,express,mysql,sequelize,redis,python,pytorch,fastapi,docker" alt="Tech Stack" />
+</div>
+
+<br />
+
 Krishi Mitra is a farmer-first, full-stack digital ecosystem that fuses AI-powered crop diagnostics, a compliant B2B agri-marketplace, and precision farm management into one seamless platform. By combining multilingual conversational interfaces with a continuously improving data backbone, the solution helps Indian farmers raise yields, secure better prices, and build resilience against climate and market shocks.
 
 ---
@@ -18,10 +24,10 @@ Krishi Mitra is a farmer-first, full-stack digital ecosystem that fuses AI-power
 
 | Layer | Key Components | Notes |
 | --- | --- | --- |
-| **Frontend** (`frontend/`) | React + Vite + Tailwind UI, Redux Toolkit store, multilingual i18n | Hosts dashboards, marketplace, diagnostics UI, and the multilingual assistant. |
-| **Backend** (`backend/`) | Node.js + Express, MongoDB (Mongoose), Redis | Orchestrates auth, marketplace flows, diagnostics history, notifications, and ML service hand-offs. |
-| **ML Service** (`ml/`) | Python microservice (Flask/FastAPI ready) | Serves crop disease inference endpoints; extensible to on-device export. |
-| **Data & Ops** | Dockerfiles, docker-compose, planned integrations with FPO logistics APIs and e-NAM | Enables containerized deployment across modules. |
+| **Frontend** (`frontend/`) | <img src="https://skillicons.dev/icons?i=react,vite,tailwind,redux" width="100" style="vertical-align: middle;" /> <br> React + Vite + Tailwind UI, Redux Toolkit store, multilingual i18n | Hosts dashboards, marketplace, diagnostics UI, and the multilingual assistant. |
+| **Backend** (`backend/`) | <img src="https://skillicons.dev/icons?i=nodejs,express,mysql,sequelize,redis" width="100" style="vertical-align: middle;" /> <br> Node.js + Express, MySQL (Sequelize), Redis | Orchestrates auth, marketplace flows, diagnostics history, notifications, and ML service hand-offs. |
+| **ML Service** (`ml/`) | <img src="https://skillicons.dev/icons?i=python,fastapi,pytorch" width="75" style="vertical-align: middle;" /> <br> Python microservice (FastAPI), PyTorch | Serves crop disease inference endpoints; extensible to on-device export. |
+| **Data & Ops** | <img src="https://skillicons.dev/icons?i=docker" width="25" style="vertical-align: middle;" /> <br> Dockerfiles, docker-compose, planned integrations with FPO logistics APIs and e-NAM | Enables containerized deployment across modules. |
 
 ---
 
@@ -69,7 +75,7 @@ Krishi Mitra is a farmer-first, full-stack digital ecosystem that fuses AI-power
 - Node.js 18+
 - Python 3.10+
 - Docker (optional but recommended for full-stack spin-up)
-- MongoDB & Redis instances (local or managed)
+- MySQL & Redis instances (local or managed)
 
 ### Install dependencies
 ```bash
@@ -104,7 +110,7 @@ cd ml
 python app.py
 ```
 
-> Optional: use `backend/docker-compose.yml` to orchestrate API + MongoDB + Redis containers.
+> Optional: use `backend/docker-compose.yml` to orchestrate API + MySQL + Redis containers.
 
 ---
 
