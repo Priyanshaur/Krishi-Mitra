@@ -17,6 +17,7 @@ import {
   Plus,
   List,
   Truck,
+  Activity,
 } from "lucide-react";
 import "./Sidebar.css";
 
@@ -36,6 +37,7 @@ const Sidebar = ({ open, setOpen }) => {
     { name: t('sidebar.myListings'), href: "/marketplace/my", icon: List },
     { name: t('sidebar.orders'), href: "/marketplace/orders", icon: Truck },
     { name: t('common.diagnose'), href: "/diagnose", icon: Leaf },
+    { name: "IoT Monitor", href: "/farmer/iot", icon: Activity },
     { name: t('common.settings'), href: "/settings", icon: SettingsIcon },
   ];
 
